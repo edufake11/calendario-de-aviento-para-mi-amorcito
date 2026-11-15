@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Calendario de Adviento</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Karla:wght@400;500;700&display=swap">
+<style>
+/* Layout: una sola hoja de papel; portada con sobre → rejilla de 24 sobres-puerta */
+:root{
+  --paper:#fbf6f8; --paper-2:#f3e8ee; --ink:#33283a; --muted:#8c7f92;
+  --red:#c8466f; --red-2:#a8355a; --cream:#fdf0e6; --cream-2:#f6e0d0;
+  --env:#f8d9e2; --env-2:#efc3d0; --env-top:#fbe6ec;
+  --sage:#cde6f7; --sage-2:#afd3ee; --line:rgba(51,40,58,.12);
+  --display:"Libre Caslon Display","Libre Caslon Text",Georgia,"Times New Roman",serif;
+  --serif:"Libre Caslon Text",Georgia,"Times New Roman",serif;
+  --sans:Karla,system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{min-height:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  background-image:radial-gradient(circle at 20% 10%,rgba(255,255,255,.7),transparent 50%),radial-gradient(circle at 90% 90%,rgba(140,190,230,.10),transparent 40%)}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+.eyebrow{font-family:var(--sans);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:500}
+
+/* ---------- Portada ---------- */
+#portada{max-width:1000px;margin:0 auto;padding-block:clamp(40px,10vh,110px) 48px;display:grid;grid-template-columns:1fr 1.1fr;gap:clamp(24px,5vw,72px);align-items:center}
+.sobre-wrap{display:grid;place-items:center;perspective:900px}
+.sobre{position:relative;width:min(340px,80vw);aspect-ratio:1.45;transform:rotate(-6deg);transition:transform .8s cubic-bezier(.2,.7,.2,1)}
+.sobre .cuerpo{position:absolute;inset:0;background:linear-gradient(160deg,var(--env),var(--env-2));border-radius:4px;box-shadow:0 18px 40px -18px rgba(120,50,80,.45),0 2px 0 rgba(255,255,255,.5) inset;z-index:1}
+.sobre .pliegue{position:absolute;inset:0;z-index:3;border-radius:4px;pointer-events:none;
+  background:linear-gradient(to top right,transparent calc(50% - 1px),rgba(150,60,90,.18) 50%,transparent calc(50% + 1px)) left/50% 100% no-repeat,
+             linear-gradient(to top left,transparent calc(50% - 1px),rgba(150,60,90,.18) 50%,transparent calc(50% + 1px)) right/50% 100% no-repeat}
+.sobre .solapa{position:absolute;left:0;right:0;top:0;height:58%;z-index:4;transform-origin:top;transition:transform .7s ease, z-index 0s .35s;
+  background:linear-gradient(180deg,var(--env-top),var(--env-2));clip-path:polygon(0 0,100% 0,50% 100%);filter:drop-shadow(0 2px 2px rgba(0,0,0,.08))}
+.sobre .tarjeta{position:absolute;left:8%;right:8%;top:8%;bottom:8%;background:#fffdf8;z-index:2;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,.08);
+  display:grid;place-items:center;text-align:center;padding:12px;transition:transform .9s cubic-bezier(.2,.8,.2,1) .35s}
+.tarjeta>div{opacity:0;transition:opacity .4s .6s}.abierto .tarjeta>div{opacity:1}
+.tarjeta .t-para{font-family:var(--serif);font-style:italic;color:var(--red);font-size:clamp(20px,5vw,28px)}
+.tarjeta .t-sub{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+.etiqueta{position:absolute;left:10%;bottom:16%;z-index:5;background:#fffdf8;padding:8px 18px 10px;border-radius:2px;box-shadow:0 2px 6px rgba(0,0,0,.08);transform:rotate(-3deg);transition:opacity .3s}
+.etiqueta small{display:block;font-size:10px;color:var(--muted);letter-spacing:.08em}
+.etiqueta span{font-family:var(--serif);font-size:20px}
+.sello{position:absolute;right:9%;top:12%;z-index:5;width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#de6d91,var(--red-2));
+  box-shadow:0 2px 4px rgba(0,0,0,.25);display:grid;place-items:center;color:#fde6ee;transition:opacity .3s}
+.sello svg{width:18px;height:18px}
+.abierto .sobre{transform:rotate(0) translateY(40px)}
+.abierto .solapa{transform:rotateX(180deg);z-index:0}
+.abierto .tarjeta{transform:translateY(-62%)}
+.abierto .etiqueta,.abierto .sello{opacity:0}
+
+.portada-txt{display:grid;gap:18px;min-width:0}
+.portada-txt h1{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(38px,6.4vw,68px);line-height:1.02;text-wrap:balance}
+.portada-txt h1 em{display:block;color:var(--red);font-family:var(--serif);font-style:italic}
+.portada-txt p{margin:0;color:var(--muted);max-width:44ch}
+.portada-txt .cuantas{font-family:var(--serif);color:var(--ink);font-size:17px}
+.acciones{display:flex;flex-wrap:wrap;align-items:center;gap:18px;margin-top:6px}
+.btn{display:inline-flex;align-items:center;gap:10px;border:0;background:var(--red);color:#fff6f2;padding:14px 26px;border-radius:6px;font-weight:700;letter-spacing:.02em;
+  box-shadow:0 10px 24px -12px rgba(200,70,111,.6);transition:transform .15s,background .15s}
+.btn:hover{background:var(--red-2);transform:translateY(-1px)}
+.btn svg{width:18px;height:18px}
+.link{background:none;border:0;padding:0;color:var(--muted);font-size:13px;text-decoration:underline;text-underline-offset:3px}
+.pie{grid-column:1/-1;text-align:center;font-size:12px;color:var(--muted);margin-top:24px}
+.salida #portada{animation:fuera .6s ease .9s forwards}
+@keyframes fuera{to{opacity:0;transform:translateY(-12px)}}
+
+/* ---------- Calendario ---------- */
+#calendario{max-width:1080px;margin:0 auto;padding-block:clamp(32px,7vh,72px) 64px}
+#calendario.entra{animation:entra .8s ease both}
+@keyframes entra{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.cab{text-align:center;display:grid;gap:10px;justify-items:center;margin-bottom:clamp(28px,5vw,48px)}
+.cab h2{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(40px,8vw,84px);line-height:1;text-wrap:balance}
+.cab p{margin:0;color:var(--muted);font-family:var(--serif);font-style:italic;font-size:16px}
+.corazon{color:var(--red);width:16px;height:16px}
+.estado{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.estado b{color:var(--red);font-weight:700}
+
+.rejilla{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:clamp(8px,1.6vw,18px);list-style:none;padding:0;margin:0}
+.puerta{--c1:var(--cream);--c2:var(--cream-2);--num:var(--ink);
+  position:relative;aspect-ratio:1/1.08;width:100%;border:0;padding:0;border-radius:3px;background:transparent;
+  transform:rotate(var(--rot,0deg));transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+.puerta[data-c="red"]{--c1:#f7c8d6;--c2:#eeaec2;--num:#7d2a47}
+.puerta[data-c="sage"]{--c1:var(--sage);--c2:var(--sage-2);--num:#245578}
+.puerta .papel{position:absolute;inset:0;border-radius:3px;background:linear-gradient(155deg,var(--c1),var(--c2));
+  clip-path:polygon(0 0,calc(100% - 18%) 0,100% 18%,100% 100%,0 100%);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.puerta .papel::before{content:"";position:absolute;inset:0;
+  background:linear-gradient(to top right,transparent calc(50% - .5px),rgba(0,0,0,.07) 50%,transparent calc(50% + .5px)) left bottom/50% 100% no-repeat,
+             linear-gradient(to top left,transparent calc(50% - .5px),rgba(0,0,0,.07) 50%,transparent calc(50% + .5px)) right bottom/50% 100% no-repeat}
+.puerta .doblez{position:absolute;right:0;top:0;width:18%;aspect-ratio:1;background:linear-gradient(225deg,transparent 50%,var(--c2) 50%);filter:brightness(.88);border-bottom-left-radius:2px}
+.puerta .n{position:absolute;left:14%;top:14%;font-family:var(--serif);font-size:clamp(20px,3.2vw,34px);color:var(--num);font-variant-numeric:lining-nums}
+.puerta .cuadro{position:absolute;right:10%;bottom:10%;width:10%;aspect-ratio:1;background:rgba(255,255,255,.75);border-radius:1px}
+.puerta[data-c="red"] .cuadro{background:rgba(255,255,255,.8)}
+.puerta .sombra{position:absolute;inset:6px -2px -4px 2px;background:rgba(110,70,120,.16);filter:blur(8px);z-index:-1;border-radius:4px}
+.puerta:hover{transform:rotate(var(--rot,0deg)) translateY(-4px) scale(1.02)}
+.puerta.bloq .papel{filter:saturate(.95)}
+.puerta.bloq .n{opacity:.8}
+.puerta.hoy{animation:late 2.2s ease-in-out infinite}
+.puerta.hoy .cuadro{background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.35)}
+@keyframes late{0%,100%{transform:rotate(var(--rot,0deg))}50%{transform:rotate(var(--rot,0deg)) scale(1.04)}}
+.puerta.vista .cuadro{background:none;width:16%;right:8%;bottom:8%}
+.puerta.vista .cuadro::after{content:"";position:absolute;inset:0;background:var(--num);
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 5 6.4 5c2 0 3.6 1.1 4.6 2.6l1 1.4 1-1.4C14 6.1 15.6 5 17.6 5 21 5 23.1 8.4 21.6 11.8 19.5 16.4 12 21 12 21z'/%3E%3C/svg%3E") center/contain no-repeat;
+          mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 5 6.4 5c2 0 3.6 1.1 4.6 2.6l1 1.4 1-1.4C14 6.1 15.6 5 17.6 5 21 5 23.1 8.4 21.6 11.8 19.5 16.4 12 21 12 21z'/%3E%3C/svg%3E") center/contain no-repeat;opacity:.85}
+
+/* Aviso "todavía no" */
+.aviso{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;pointer-events:none;
+  background:#fffdf8;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:12px 18px;box-shadow:0 14px 34px -14px rgba(80,40,90,.35);
+  display:flex;gap:12px;align-items:flex-start;max-width:min(380px,calc(100vw - 32px));transition:opacity .25s,transform .25s;z-index:30}
+.aviso.ver{opacity:1;transform:translate(-50%,0)}
+.aviso svg{width:16px;height:16px;flex:none;margin-top:3px;color:var(--muted)}
+.aviso b{font-weight:700}
+
+/* Sorpresa abierta */
+.velo{position:fixed;inset:0;background:rgba(60,40,80,.4);backdrop-filter:blur(3px);display:grid;place-items:center;z-index:40;
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+  opacity:0;transition:opacity .3s}
+.velo.ver{opacity:1}
+.carta{position:relative;width:min(460px,100%);max-height:100%;overflow:auto;background:#fffdf8;border-radius:6px;padding:40px clamp(22px,6vw,44px) 32px;text-align:center;
+  box-shadow:0 30px 60px -20px rgba(70,30,80,.45);transform:translateY(30px) rotate(-1.5deg) scale(.96);transition:transform .5s cubic-bezier(.2,.9,.2,1.1)}
+.velo.ver .carta{transform:none}
+.carta{box-shadow:0 30px 60px -20px rgba(70,30,80,.45),inset 0 0 0 10px #fffdf8,inset 0 0 0 11px var(--line)}
+.carta .dia{font-family:var(--display);font-size:64px;line-height:1;color:var(--red)}
+.carta h3{margin:12px 0 14px;font-family:var(--serif);font-weight:400;font-style:italic;font-size:26px;line-height:1.2;text-wrap:balance}
+.carta p{margin:0 auto;font-family:var(--serif);font-size:16.5px;line-height:1.65;max-width:34ch;white-space:pre-line}
+.carta img{display:block;margin:20px auto 0;width:auto;height:auto;max-width:100%;max-height:min(52vh,440px);border-radius:3px;border:6px solid #fff;box-shadow:0 6px 18px -8px rgba(80,40,90,.45);transform:rotate(-1.2deg)}
+.carta.vale h3{display:inline-block;border:1.5px dashed var(--red);border-radius:6px;padding:8px 16px;color:var(--red)}
+.carta.vale p::after{content:"Canjeable cuando tú quieras";display:block;margin-top:14px;font-family:var(--sans);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.carta .firma{margin-top:22px;font-family:var(--serif);font-style:italic;color:var(--muted)}
+.carta .acc{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:24px}
+.btn.sec{background:transparent;color:var(--red);box-shadow:inset 0 0 0 1px var(--red)}
+.btn.sec:hover{background:rgba(200,70,111,.07)}
+.cerrar{position:absolute;right:16px;top:14px;border:0;background:none;color:var(--muted);font-size:24px;line-height:1;padding:6px;z-index:1}
+
+.prueba{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);font-size:12px;padding:6px 14px;border-radius:99px;z-index:20;letter-spacing:.04em}
+
+/* Nieve muy suave */
+#nieve{position:fixed;inset:0;pointer-events:none;z-index:0}
+main{position:relative;z-index:1}
+
+@media (max-width:760px){
+  #portada{grid-template-columns:1fr;text-align:center;padding-top:32px}
+  .portada-txt{justify-items:center}
+  .acciones{justify-content:center}
+  .rejilla{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media (max-width:380px){.rejilla{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<canvas id="nieve" aria-hidden="true"></canvas>
+<main>
+  <section id="portada" aria-label="Portada">
+    <div class="sobre-wrap" id="sobreWrap">
+      <div class="sobre">
+        <div class="cuerpo"></div>
+        <div class="tarjeta"><div><div class="t-sub">24 sorpresas</div><div class="t-para" data-txt="paraCorto"></div></div></div>
+        <div class="solapa"></div>
+        <div class="pliegue"></div>
+        <div class="sello"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 5 6.4 5c2 0 3.6 1.1 4.6 2.6l1 1.4 1-1.4C14 6.1 15.6 5 17.6 5 21 5 23.1 8.4 21.6 11.8 19.5 16.4 12 21 12 21z"/></svg></div>
+        <div class="etiqueta"><small>Para</small><span data-txt="para"></span></div>
+      </div>
+    </div>
+    <div class="portada-txt">
+      <div class="eyebrow" data-txt="regaloDe"></div>
+      <h1>Hay un poquito <em>de cariño para ti</em></h1>
+      <div class="cuantas" data-txt="cuantas"></div>
+      <p data-txt="horario"></p>
+      <div class="acciones">
+        <button class="btn" id="aceptar" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="8" width="18" height="13" rx="1.5"/><path d="M3 12h18M12 8v13M12 8S10.5 3 7.5 4 9 8 12 8zm0 0s1.5-5 4.5-4S15 8 12 8z"/></svg>
+          Aceptar mi regalo
+        </button>
+        <button class="link" id="omitir" type="button">Omitir animación</button>
+      </div>
+    </div>
+    <div class="pie">Hecho a mano, con cariño</div>
+  </section>
+
+  <section id="calendario" aria-label="Calendario" hidden>
+    <header class="cab">
+      <div class="eyebrow" data-txt="cabecera"></div>
+      <h2 data-txt="titulo"></h2>
+      <p data-txt="subtitulo"></p>
+      <svg class="corazon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 5 6.4 5c2 0 3.6 1.1 4.6 2.6l1 1.4 1-1.4C14 6.1 15.6 5 17.6 5 21 5 23.1 8.4 21.6 11.8 19.5 16.4 12 21 12 21z"/></svg>
+      <div class="estado" id="estado" aria-live="polite"></div>
+    </header>
+    <ol class="rejilla" id="rejilla"></ol>
+  </section>
+</main>
+
+<div class="aviso" id="aviso" role="status" aria-live="polite">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+  <div><b>Todavía no ✨</b> <span id="avisoTxt"></span></div>
+</div>
+<div class="velo" id="velo" hidden>
+  <div class="carta" role="dialog" aria-modal="true" aria-labelledby="cartaTit">
+    <button class="cerrar" id="cerrar" type="button" aria-label="Cerrar">×</button>
+    <div class="eyebrow" id="cartaEye"></div>
+    <div class="dia" id="cartaDia"></div>
+    <h3 id="cartaTit"></h3>
+    <p id="cartaTxt"></p>
+    <div id="cartaExtra"></div>
+    <div class="firma" id="cartaFirma"></div>
+    <div class="acc"><button class="btn" id="cartaOk" type="button">Guardar en mi corazón</button></div>
+  </div>
+</div>
+<div class="prueba" id="prueba" hidden>Modo prueba · todas las puertas abiertas</div>
+
+<script>
+/* =====================================================================
+   PERSONALIZA AQUÍ  ✏️
+   - para / de: nombres
+   - anio: año de la Navidad
+   - Cada sorpresa: titulo, texto y, si quieres, enlace (canción, vídeo…)
+     y foto (archivo publicado junto a la página, p. ej. "fotos/dia3.jpg").
+   - Para ver todas las sorpresas antes de tiempo, añade #probar al enlace.
+   ===================================================================== */
+const CONFIG = {
+  para: "Adriana",
+  de: "Jhoncena",
+  anio: 2026,
+  titulo: "Feliz Navidad mi amor",
+  subtitulo: "He guardado un poquito de nosotros detrás de cada puerta.",
+  firma: "Te quiero",
+  sorpresas: [
+    { foto: "fotos/d1.jpg", titulo: "Empieza la cuenta regresiva", texto: "Durante 24 días vas a encontrar aquí un poquito de nosotros.\nVuelve cada noche a las 00:00: siempre habrá algo esperándote." },
+    { vale: true, titulo: "Te invito a una cena", texto: "Tú eliges el lugar y el día.\nYo invito, sin mirar la carta de precios." },
+    { foto: "fotos/d3.jpg", titulo: "Mira esa carita", texto: "Si alguna vez no sabes cuánto te quiero, piensa en cómo nos mira Moca.\nAsí, pero más." },
+    { vale: true, titulo: "Vale por un paseo", texto: "Una tarde para caminar juntos, sin apuro.\nTú dices a dónde." },
+    { foto: "fotos/d5.jpg", titulo: "Nuestras fotos de la compu", texto: "Cualquier lugar se vuelve bonito si estás tú.\nHasta una computadora de la universidad." },
+    { vale: true, titulo: "Un día con todo lo que tú elijas", texto: "Desayuno, plan, comida, peli y postre.\nTodo el día decides tú y yo solo digo que sí." },
+    { foto: "fotos/d7.jpg", titulo: "Nuestro viaje", texto: "Uno de mis recuerdos favoritos.\nQuiero muchos viajes más contigo." },
+    { vale: true, titulo: "Vale por un abrazo largo", texto: "Canjeable cuando quieras.\nDura lo que tú decidas." },
+    { foto: "fotos/d9.jpg", titulo: "Prueba de que estamos igual de locos", texto: "Por eso nos entendemos tan bien.\nNo cambies nunca." },
+    { vale: true, titulo: "Noche de peli", texto: "Tú eliges la película.\nYo pongo los snacks y no me quejo de tu elección." },
+    { foto: "fotos/d11.jpg", titulo: "Esa laguna en Huaraz", texto: "Hacía frío, había viento y estaba nublado.\nY yo estaba feliz porque estaba contigo." },
+    { vale: true, titulo: "Vale por un desayuno", texto: "Yo lo preparo o yo invito.\nTú solo despiertas." },
+    { foto: "fotos/d13.jpg", titulo: "Tu cara de «ya vámonos»", texto: "Hasta enojada eres la más bonita.\nGracias por aguantarme las fotos." },
+    { vale: true, titulo: "Vale por un «tienes razón»", texto: "Úsalo con cabeza.\nSolo hay uno." },
+    { foto: "fotos/d15.jpg", titulo: "Mis dos dormilonas", texto: "Tú y Moca, juntitas en el sillón.\nUna de mis fotos favoritas: me da mucha ternura verlas así." },
+    { vale: true, titulo: "Una tarde sin celulares", texto: "Solo tú y yo, sin pantallas.\nHablando de todo y de nada." },
+    { foto: "fotos/d17.jpg", titulo: "Mitad del camino y un poquito más", texto: "Ya van diecisiete puertas.\nQuedan siete sorpresas y muchas ganas de verte." },
+    { vale: true, titulo: "Vale por un helado", texto: "Del sabor que quieras.\nY si quieres dos bolas, también." },
+    { foto: "fotos/d19.jpg", titulo: "Lo que más espero", texto: "Pasar estas fiestas contigo.\nLo demás es decoración." },
+    { vale: true, titulo: "Vale por un masaje", texto: "Diez minutos garantizados.\nVeinte si me lo pides bonito." },
+    { foto: "fotos/d21.jpg", titulo: "Moca también lo sabe", texto: "Que en brazos de quien te quiere se duerme mejor.\nHoy es el día más largo del año, y aun así contigo se me pasa volando." },
+    { vale: true, titulo: "Paseo de luces de Navidad", texto: "Esta semana salimos a ver las luces.\nCon chocolatada incluida." },
+    { foto: "fotos/d23.jpg", titulo: "Casi", texto: "Mañana es Nochebuena.\nGracias por este año, por tu paciencia, por tu risa y por todas nuestras fotos borrosas." },
+    { foto: "fotos/d24.jpg", titulo: "Feliz Navidad, mi amor", texto: "Esa noche en el Puente de los Suspiros pensé que no quería estar en ningún otro lugar.\nEs la última puerta, pero no la última sorpresa.\nTe amo muchoo, mi amorcito." }
+  ]
+};
+/* ===================================================================== */
+
+const MESES = "diciembre";
+const COLORES = ["cream","red","sage","cream","cream","red","sage","cream","cream","red","sage","cream","cream","red","sage","cream","cream","red","sage","cream","red","cream","sage","red"];
+const ROT = [-1.2,.8,-.4,1,-.8,.5,.9,-1,.3,-.6,1.1,-.3,.7,-1.1,.4,-.5,1,-.7,.2,.9,-.9,.6,-.2,1.2];
+const $ = s => document.querySelector(s);
+const pad = n => String(n).padStart(2,"0");
+const prueba = location.hash === "#probar";
+
+function guardar(k,v){try{localStorage.setItem("adv-"+k,JSON.stringify(v))}catch(e){}}
+function leer(k,d){try{const v=localStorage.getItem("adv-"+k);return v==null?d:JSON.parse(v)}catch(e){return d}}
+
+// Textos
+const T = {
+  para: CONFIG.para, paraCorto: CONFIG.para,
+  regaloDe: CONFIG.de ? "Un regalo de " + CONFIG.de : "Un regalo para ti",
+  cuantas: "24 sorpresas para " + CONFIG.para,
+  horario: "Una sorpresa nueva cada día de diciembre, a las 00:00. No hace falta descargar nada: solo guarda este enlace.",
+  cabecera: (CONFIG.de ? "De " + CONFIG.de + " · " : "Para " + CONFIG.para + " · ") + "Navidad " + CONFIG.anio,
+  titulo: CONFIG.titulo, subtitulo: CONFIG.subtitulo
+};
+document.querySelectorAll("[data-txt]").forEach(el => el.textContent = T[el.dataset.txt] || "");
+
+// Fecha de apertura de cada día (00:00 hora local de quien lo abre)
+const apertura = d => new Date(CONFIG.anio, 11, d, 0, 0, 0);
+const abierta = d => prueba || Date.now() >= apertura(d).getTime();
+function diaHoy(){const n=new Date();return (n.getFullYear()===CONFIG.anio&&n.getMonth()===11&&n.getDate()<=24)?n.getDate():0}
+
+let vistas = new Set(leer("vistas", []));
+
+function pintarRejilla(){
+  const ol = $("#rejilla"); ol.innerHTML = "";
+  const hoy = diaHoy();
+  for(let d=1; d<=24; d++){
+    const li = document.createElement("li");
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "puerta"; b.dataset.c = COLORES[d-1]; b.dataset.d = d;
+    b.style.setProperty("--rot", ROT[d-1] + "deg");
+    const ok = abierta(d);
+    if(!ok) b.classList.add("bloq");
+    if(d === hoy && !vistas.has(d)) b.classList.add("hoy");
+    if(vistas.has(d)) b.classList.add("vista");
+    b.setAttribute("aria-label", "Día " + d + (ok ? (vistas.has(d) ? ", ya abierta" : ", lista para abrir") : ", se abre el " + d + " de diciembre"));
+    b.innerHTML = '<span class="sombra"></span><span class="papel"></span><span class="doblez"></span><span class="n">'+pad(d)+'</span><span class="cuadro"></span>';
+    b.addEventListener("click", () => tocar(d));
+    li.appendChild(b); ol.appendChild(li);
+  }
+  pintarEstado();
+}
+
+function pintarEstado(){
+  const e = $("#estado"), ahora = new Date(), primero = apertura(1);
+  if(prueba){ e.textContent = "Modo prueba: puedes abrir todas las puertas."; return; }
+  if(ahora < primero){
+    const dias = Math.ceil((primero - ahora) / 864e5);
+    e.innerHTML = dias === 1 ? "La primera puerta se abre <b>esta noche</b> a las 00:00" : "Faltan <b>" + dias + " días</b> para la primera puerta";
+  } else {
+    const n = Math.min(24, [...Array(24)].filter((_,i)=>abierta(i+1)).length);
+    e.innerHTML = "Has abierto <b>" + vistas.size + " de " + n + "</b> sorpresas disponibles";
+  }
+}
+
+let tAviso;
+function tocar(d){
+  if(!abierta(d)){
+    $("#avisoTxt").textContent = "Esta sorpresa se abre el " + d + " de diciembre.";
+    const a = $("#aviso"); a.classList.add("ver");
+    clearTimeout(tAviso); tAviso = setTimeout(()=>a.classList.remove("ver"), 2600);
+    return;
+  }
+  abrirCarta(d);
+}
+
+let ultimoFoco = null;
+function abrirCarta(d){
+  const s = CONFIG.sorpresas[d-1] || {titulo:"Sorpresa", texto:""};
+  ultimoFoco = document.activeElement;
+  $("#cartaEye").textContent = (s.vale ? "Vale personal · " : "") + d + " de diciembre";
+  $(".carta").classList.toggle("vale", !!s.vale);
+  $("#cartaDia").textContent = pad(d);
+  $("#cartaTit").textContent = s.titulo;
+  $("#cartaTxt").textContent = s.texto;
+  $("#cartaFirma").textContent = [CONFIG.firma, CONFIG.de].filter(Boolean).join(", ");
+  const ex = $("#cartaExtra"); ex.innerHTML = "";
+  if(s.foto){ const i = new Image(); i.src = s.foto; i.alt = s.titulo; ex.appendChild(i); }
+  if(s.enlace){ const a = document.createElement("a"); a.href = s.enlace; a.target = "_blank"; a.rel = "noopener"; a.className = "btn sec"; a.style.marginTop = "18px"; a.textContent = s.textoEnlace || "Abrir"; ex.appendChild(a); }
+  const v = $("#velo"); v.hidden = false; requestAnimationFrame(()=>v.classList.add("ver"));
+  $("#cartaOk").focus();
+  if(!vistas.has(d)){ vistas.add(d); guardar("vistas", [...vistas]); }
+  if(!matchMedia("(prefers-reduced-motion: reduce)").matches) confeti();
+}
+function cerrarCarta(){
+  const v = $("#velo"); v.classList.remove("ver");
+  setTimeout(()=>{ v.hidden = true; pintarRejilla(); if(ultimoFoco){ const b = document.querySelector('.puerta[data-d="'+ultimoFoco.dataset?.d+'"]'); (b||document.body).focus?.(); } }, 300);
+}
+$("#cerrar").onclick = cerrarCarta; $("#cartaOk").onclick = cerrarCarta;
+$("#velo").addEventListener("click", e => { if(e.target.id === "velo") cerrarCarta(); });
+document.addEventListener("keydown", e => { if(e.key === "Escape" && !$("#velo").hidden) cerrarCarta(); });
+
+// Portada → calendario
+function mostrarCalendario(animado){
+  $("#portada").hidden = true;
+  const c = $("#calendario"); c.hidden = false;
+  if(animado) c.classList.add("entra");
+  pintarRejilla(); guardar("aceptado", true); window.scrollTo(0,0);
+}
+$("#aceptar").onclick = () => {
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches) return mostrarCalendario(false);
+  $("#sobreWrap").classList.add("abierto"); document.body.classList.add("salida");
+  setTimeout(()=>{ document.body.classList.remove("salida"); mostrarCalendario(true); }, 1600);
+};
+$("#omitir").onclick = () => mostrarCalendario(false);
+
+if(prueba) $("#prueba").hidden = false;
+if(leer("aceptado", false)) mostrarCalendario(false);
+setInterval(()=>{ if(!$("#calendario").hidden && $("#velo").hidden) pintarRejilla(); }, 60000);
+addEventListener("hashchange", ()=>location.reload());
+
+// Nieve suave y destellos
+const cv = $("#nieve"), cx = cv.getContext("2d");
+let W, H, copos = [], chispas = [];
+function tam(){ W = cv.width = innerWidth * devicePixelRatio; H = cv.height = innerHeight * devicePixelRatio; cv.style.width = innerWidth+"px"; cv.style.height = innerHeight+"px"; }
+tam(); addEventListener("resize", tam);
+const quieto = matchMedia("(prefers-reduced-motion: reduce)").matches;
+for(let i=0;i<40;i++) copos.push({x:Math.random(),y:Math.random(),r:Math.random()*2+1,v:Math.random()*.0006+.0003,o:Math.random()*.5+.2});
+function confeti(){
+  const cols = ["#e7799b","#f7c8d6","#afd3ee","#f6d58a"];
+  for(let i=0;i<90;i++) chispas.push({x:.5,y:.45,vx:(Math.random()-.5)*.02,vy:-Math.random()*.02-.004,r:Math.random()*3+2,c:cols[i%4],t:0,g:Math.random()*Math.PI});
+}
+function loop(){
+  cx.clearRect(0,0,W,H); const k = devicePixelRatio;
+  for(const c of copos){ c.y += c.v; c.x += Math.sin((c.y*20)+c.r)*.0003; if(c.y>1.02){c.y=-.02;c.x=Math.random()}
+    cx.beginPath(); cx.fillStyle = "rgba(150,185,220,"+c.o*.6+")"; cx.arc(c.x*W,c.y*H,c.r*k,0,7); cx.fill(); }
+  chispas = chispas.filter(p=>p.t<140);
+  for(const p of chispas){ p.t++; p.vy += .0004; p.x += p.vx; p.y += p.vy; p.g += .2;
+    cx.save(); cx.translate(p.x*W,p.y*H); cx.rotate(p.g); cx.globalAlpha = 1 - p.t/140; cx.fillStyle = p.c; cx.fillRect(-p.r*k,-p.r*k/2,p.r*2*k,p.r*k); cx.restore(); }
+  requestAnimationFrame(loop);
+}
+if(!quieto) loop();
+</script>
+</body>
+</html>
