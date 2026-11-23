@@ -133,6 +133,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .carta p{margin:0 auto;font-family:var(--serif);font-size:16.5px;line-height:1.65;max-width:34ch;white-space:pre-line}
 .carta img{display:block;margin:20px auto 0;width:auto;height:auto;max-width:100%;max-height:min(52vh,440px);border-radius:3px;border:6px solid #fff;box-shadow:0 6px 18px -8px rgba(80,40,90,.45);transform:rotate(-1.2deg)}
 .carta.vale h3{display:inline-block;border:1.5px dashed var(--red);border-radius:6px;padding:8px 16px;color:var(--red)}
+.nota-regalo{margin:20px auto 0;max-width:32ch;background:var(--sage);color:#245578;border-radius:8px;padding:12px 16px;font-size:14px;font-weight:500;line-height:1.45}
 .carta.vale p::after{content:"Canjeable cuando tú quieras";display:block;margin-top:14px;font-family:var(--sans);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
 .carta .firma{margin-top:22px;font-family:var(--serif);font-style:italic;color:var(--muted)}
 .carta .acc{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:24px}
@@ -241,23 +242,23 @@ const CONFIG = {
     { foto: "fotos/d5.jpg", titulo: "Nuestras fotos de la compu", texto: "Cualquier lugar se vuelve bonito si estás tú.\nHasta una computadora de la universidad." },
     { vale: true, titulo: "Un día con todo lo que tú elijas", texto: "Desayuno, plan, comida, peli y postre.\nTodo el día decides tú y yo solo digo que sí." },
     { foto: "fotos/d7.jpg", titulo: "Nuestro viaje", texto: "Uno de mis recuerdos favoritos.\nQuiero muchos viajes más contigo." },
-    { vale: true, titulo: "Vale por un abrazo largo", texto: "Canjeable cuando quieras.\nDura lo que tú decidas." },
-    { foto: "fotos/d9.jpg", titulo: "Prueba de que estamos igual de locos", texto: "Por eso nos entendemos tan bien.\nNo cambies nunca." },
-    { vale: true, titulo: "Noche de peli", texto: "Tú eliges la película.\nYo pongo los snacks y no me quejo de tu elección." },
-    { foto: "fotos/d11.jpg", titulo: "Esa laguna en Huaraz", texto: "Hacía frío, había viento y estaba nublado.\nY yo estaba feliz porque estaba contigo." },
-    { vale: true, titulo: "Vale por un desayuno", texto: "Yo lo preparo o yo invito.\nTú solo despiertas." },
-    { foto: "fotos/d13.jpg", titulo: "Tu cara de «ya vámonos»", texto: "Hasta enojada eres la más bonita.\nGracias por aguantarme las fotos." },
-    { vale: true, titulo: "Vale por un «tienes razón»", texto: "Úsalo con cabeza.\nSolo hay uno." },
-    { foto: "fotos/d15.jpg", titulo: "Mis dos dormilonas", texto: "Tú y Moca, juntitas en el sillón.\nUna de mis fotos favoritas: me da mucha ternura verlas así." },
-    { vale: true, titulo: "Una tarde sin celulares", texto: "Solo tú y yo, sin pantallas.\nHablando de todo y de nada." },
-    { foto: "fotos/d17.jpg", titulo: "Mitad del camino y un poquito más", texto: "Ya van diecisiete puertas.\nQuedan siete sorpresas y muchas ganas de verte." },
-    { vale: true, titulo: "Vale por un helado", texto: "Del sabor que quieras.\nY si quieres dos bolas, también." },
-    { foto: "fotos/d19.jpg", titulo: "Lo que más espero", texto: "Pasar estas fiestas contigo.\nLo demás es decoración." },
-    { vale: true, titulo: "Vale por un masaje", texto: "Diez minutos garantizados.\nVeinte si me lo pides bonito." },
-    { foto: "fotos/d21.jpg", titulo: "Moca también lo sabe", texto: "Que en brazos de quien te quiere se duerme mejor.\nHoy es el día más largo del año, y aun así contigo se me pasa volando." },
     { vale: true, titulo: "Paseo de luces de Navidad", texto: "Esta semana salimos a ver las luces.\nCon chocolatada incluida." },
+    { foto: "fotos/d9.jpg", titulo: "Prueba de que estamos igual de locos", texto: "Por eso nos entendemos tan bien.\nNo cambies nunca." },
+    { regalo: true, titulo: "Un poquito de glow", texto: "Para que tu maquillaje te dure todo el día.\nAunque sin nada ya eres la más bonita." },
+    { foto: "fotos/d11.jpg", titulo: "Esa laguna en Huaraz", texto: "Hacía frío, había viento y estaba nublado.\nY yo estaba feliz porque estaba contigo." },
+    { regalo: true, titulo: "Un Minion para ti", texto: "Bob y su osito Tim vienen a hacerte compañía.\nPara que lo abraces cuando yo no esté." },
+    { foto: "fotos/d13.jpg", titulo: "Tu cara de «ya vámonos»", texto: "Hasta enojada eres la más bonita.\nGracias por aguantarme las fotos." },
+    { regalo: true, titulo: "Una flor que no se marchita", texto: "Para que tengas flores en tu cuarto todo el año.\nComo lo que siento por ti." },
+    { foto: "fotos/d15.jpg", titulo: "Mis dos dormilonas", texto: "Tú y Moca, juntitas en el sillón.\nUna de mis fotos favoritas: me da mucha ternura verlas así." },
+    { regalo: true, titulo: "Un juego para los dos", texto: "Preguntas y retos solo para nosotros.\nYa veremos quién se pone más rojo." },
+    { foto: "fotos/d17.jpg", titulo: "Mitad del camino y un poquito más", texto: "Ya van diecisiete puertas.\nQuedan siete sorpresas y muchas ganas de verte." },
+    { regalo: true, titulo: "Un tulipán para llevar contigo", texto: "Para tus llaves, tu mochila o donde quieras.\nAsí me llevas a todos lados." },
+    { foto: "fotos/d19.jpg", titulo: "Lo que más espero", texto: "Pasar estas fiestas contigo.\nLo demás es decoración." },
+    { regalo: true, titulo: "Tulipanes para ti", texto: "Porque mereces flores aunque no haya un motivo.\nY hoy el motivo es que te amo." },
+    { foto: "fotos/d21.jpg", titulo: "Moca también lo sabe", texto: "Que en brazos de quien te quiere se duerme mejor.\nHoy es el día más largo del año, y aun así contigo se me pasa volando." },
+    { regalo: true, titulo: "Para que te tapes riendo", texto: "Una manta con una foto tuya, de las graciosas 😜\nCada vez que te tapes te vas a reír y te vas a acordar de mí." },
     { foto: "fotos/d23.jpg", titulo: "Casi", texto: "Mañana es Nochebuena.\nGracias por este año, por tu paciencia, por tu risa y por todas nuestras fotos borrosas." },
-    { foto: "fotos/d24.jpg", titulo: "Feliz Navidad, mi amor", texto: "Esa noche en el Puente de los Suspiros pensé que no quería estar en ningún otro lugar.\nEs la última puerta, pero no la última sorpresa.\nTe amo muchoo, mi amorcito." }
+    { regalo: true, foto: "fotos/d24.jpg", titulo: "Feliz Navidad, mi amor", texto: "Esa noche en el Puente de los Suspiros pensé que no quería estar en ningún otro lugar.\nTu último regalo brilla: un anillito para que me lleves siempre contigo.\nTe amo muchoo, mi amorcito." }
   ]
 };
 /* ===================================================================== */
@@ -337,8 +338,9 @@ let ultimoFoco = null;
 function abrirCarta(d){
   const s = CONFIG.sorpresas[d-1] || {titulo:"Sorpresa", texto:""};
   ultimoFoco = document.activeElement;
-  $("#cartaEye").textContent = (s.vale ? "Vale personal · " : "") + d + " de diciembre";
+  $("#cartaEye").textContent = (s.vale ? "Vale personal · " : s.regalo ? "Tu regalo · " : "") + d + " de diciembre";
   $(".carta").classList.toggle("vale", !!s.vale);
+  $(".carta").classList.toggle("regalo", !!s.regalo);
   $("#cartaDia").textContent = pad(d);
   $("#cartaTit").textContent = s.titulo;
   $("#cartaTxt").textContent = s.texto;
@@ -346,6 +348,7 @@ function abrirCarta(d){
   const ex = $("#cartaExtra"); ex.innerHTML = "";
   if(s.foto){ const i = new Image(); i.src = s.foto; i.alt = s.titulo; ex.appendChild(i); }
   if(s.enlace){ const a = document.createElement("a"); a.href = s.enlace; a.target = "_blank"; a.rel = "noopener"; a.className = "btn sec"; a.style.marginTop = "18px"; a.textContent = s.textoEnlace || "Abrir"; ex.appendChild(a); }
+  if(s.regalo){ const n = document.createElement("div"); n.className = "nota-regalo"; n.textContent = "🎁 Hoy hay un regalo de verdad para ti. Pídeselo a " + (CONFIG.de || "tu amor") + "."; ex.appendChild(n); }
   const v = $("#velo"); v.hidden = false; requestAnimationFrame(()=>v.classList.add("ver"));
   $("#cartaOk").focus();
   if(!vistas.has(d)){ vistas.add(d); guardar("vistas", [...vistas]); }
