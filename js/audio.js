@@ -14,7 +14,7 @@
 
   const CFG = window.CALENDARIO || {};
   const CANCION = CFG.cancion || {};
-  const CLAVE = "adri-sonido";
+  const CLAVE = "adri-sonido-2026";
   let pref = { cancion: true, musica: false, volumen: 0.8, silencio: false };
   try { Object.assign(pref, JSON.parse(localStorage.getItem(CLAVE) || "{}")); } catch (e) {}
   const guardar = () => { try { localStorage.setItem(CLAVE, JSON.stringify(pref)); } catch (e) {} };
@@ -343,8 +343,8 @@
     silenciar(forzar) { pref.silencio = typeof forzar === "boolean" ? forzar : !pref.silencio; aplicarVolumen(); guardar(); avisar(); }
   };
   /* Solo retomamos sola la canción si ella ya la escuchó alguna vez. */
-  let sesionConCancion = (function () { try { return localStorage.getItem("adri-escucho-cancion") === "1"; } catch (e) { return false; } })();
-  window.Sonido.alCambiar(e => { if (e.cancionSonando && !sesionConCancion) { sesionConCancion = true; try { localStorage.setItem("adri-escucho-cancion", "1"); } catch (er) {} } });
+  let sesionConCancion = (function () { try { return localStorage.getItem("adri-escucho-cancion-2026") === "1"; } catch (e) { return false; } })();
+  window.Sonido.alCambiar(e => { if (e.cancionSonando && !sesionConCancion) { sesionConCancion = true; try { localStorage.setItem("adri-escucho-cancion-2026", "1"); } catch (er) {} } });
 
   document.addEventListener("visibilitychange", () => {
     if (!ctx) return;

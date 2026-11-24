@@ -56,18 +56,14 @@
   /* ======================================================================
      ESTADO (localStorage)
      ====================================================================== */
-  const CLAVE = "adri-calendario-v2";
+  /* Clave de la versión definitiva: Adriana empieza con las 24 puertas sin
+     abrir. No la cambies durante diciembre o se borraría su progreso. */
+  const CLAVE = "adri-calendario-2026";
   const Estado = (function () {
     let e = { abiertas: [], datos: {}, introVista: false, visitas: 0, secretos: [], finalVisto: false };
     try {
       const guardado = JSON.parse(localStorage.getItem(CLAVE) || "null");
       if (guardado) Object.assign(e, guardado);
-      else {
-        // Migración desde la versión anterior del calendario.
-        const viejas = JSON.parse(localStorage.getItem("adv-vistas") || "[]");
-        if (Array.isArray(viejas)) e.abiertas = viejas.filter(n => n >= 1 && n <= TOTAL);
-        if (JSON.parse(localStorage.getItem("adv-aceptado") || "false")) e.introVista = true;
-      }
     } catch (err) {}
     const guardar = () => { try { localStorage.setItem(CLAVE, JSON.stringify(e)); } catch (err) {} };
     return {
