@@ -1,11 +1,17 @@
 /* Service worker: permite instalar el calendario y abrirlo sin conexión.
-   Estrategia "primero la red": siempre se ve la última versión publicada y,
-   si no hay internet, se usa la copia guardada. Cambia VERSION al publicar
-   cambios grandes para limpiar la copia anterior. */
-const VERSION = "adri-v2-1";
+
+   - Páginas, estilos y código: "primero la red". Siempre se ve la última
+     versión publicada; si no hay internet, se usa la copia guardada.
+   - La canción NO pasa por aquí: Safari la pide por partes (peticiones
+     "Range") y un service worker en medio puede dejarla muda en iPhone.
+     El navegador la maneja directamente con su propia caché.
+
+   Al publicar cambios, sube VERSION (y el ?v= de index.html) para que
+   se borre la copia anterior. */
+const VERSION = "adri-v3";
 const BASICOS = [
-  "./", "index.html", "css/estilos.css",
-  "js/config.js", "js/audio.js", "js/efectos.js", "js/sorpresas.js", "js/app.js",
+  "./", "index.html", "css/estilos.css?v=3",
+  "js/config.js?v=3", "js/audio.js?v=3", "js/efectos.js?v=3", "js/sorpresas.js?v=3", "js/app.js?v=3",
   "manifest.webmanifest", "iconos/icono-192.png", "iconos/icono-512.png"
 ];
 
@@ -14,18 +20,22 @@ self.addEventListener("install", e => {
 });
 
 self.addEventListener("activate", e => {
-  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== VERSION).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+  e.waitUntil(
+    caches.keys()
+      .then(ks => Promise.all(ks.filter(k => k !== VERSION).map(k => caches.delete(k))))
+      .then(() => self.clients.claim())
+  );
 });
 
 self.addEventListener("fetch", e => {
   const req = e.request;
-  if (req.method !== "GET" || new URL(req.url).origin !== location.origin) return;
-  // El audio usa peticiones por rangos: lo dejamos pasar directo a la red.
-  if (req.headers.has("range") || /\.(mp3|m4a|aac|ogg|wav|mp4)$/i.test(new URL(req.url).pathname)) return;
+  const url = new URL(req.url);
+  if (req.method !== "GET" || url.origin !== location.origin) return;
+  if (req.headers.has("range") || req.destination === "audio" || req.destination === "video" || /\.(mp3|m4a|aac|ogg|wav|mp4)$/i.test(url.pathname)) return;
   e.respondWith(
-    fetch(req).then(res => {
-      if (res.ok) { const copia = res.clone(); caches.open(VERSION).then(c => c.put(req, copia)); }
+    fetch(req, { cache: "no-cache" }).then(res => {
+      if (res.ok && res.type === "basic") { const copia = res.clone(); caches.open(VERSION).then(c => c.put(req, copia)); }
       return res;
-    }).catch(() => caches.match(req).then(r => r || caches.match("index.html")))
+    }).catch(() => caches.match(req).then(r => r || (req.mode === "navigate" ? caches.match("index.html") : undefined)))
   );
 });

@@ -49,6 +49,8 @@
   }
 
   function despertar() {
+    // Safari 17+: la canción es música, no un sonido de interfaz.
+    try { if (navigator.audioSession && navigator.audioSession.type !== "playback") navigator.audioSession.type = "playback"; } catch (e) {}
     crearContexto();
     if (ctx && ctx.state !== "running") ctx.resume().catch(() => {});
   }
@@ -66,7 +68,8 @@
   const cancion = {
     el: null, fuente: null, ganancia: null,
     disponible: null,          // null = comprobando, true / false
-    sonando: false, atenuada: false, protagonista: false
+    sonando: false, atenuada: false, protagonista: false,
+    quiere: false              // última orden de ella: true = que suene
   };
 
   if (CANCION.archivo) {
@@ -77,9 +80,11 @@
     a.src = CANCION.archivo;
     a.addEventListener("loadedmetadata", () => { cancion.disponible = true; avisar(); });
     a.addEventListener("error", () => { cancion.disponible = false; avisar(); });
+    a.addEventListener("canplay", () => { if (cancion.disponible !== true) { cancion.disponible = true; avisar(); } });
     a.addEventListener("play", () => { cancion.sonando = true; avisar(); });
-    a.addEventListener("pause", () => { cancion.sonando = false; avisar(); });
+    a.addEventListener("pause", () => { cancion.sonando = false; cancion.quiere = false; avisar(); });
     a.addEventListener("timeupdate", () => oyentesTiempo.forEach(fn => fn(a.currentTime, a.duration)));
+    prepararMediaSession(a);
     cancion.el = a;
   } else cancion.disponible = false;
   const oyentesTiempo = new Set();
@@ -97,9 +102,37 @@
 
   function nivelCancion() { return cancion.atenuada ? 0.16 : 1; }
 
+  /* Respaldo sin Web Audio: fundido moviendo el volumen del <audio>. */
+  let fundidoEl = 0;
+  function fundirElemento(destino, segundos, alTerminar) {
+    clearInterval(fundidoEl);
+    const el = cancion.el, inicio = el.volume, pasos = Math.max(1, Math.round(segundos * 20));
+    let i = 0;
+    fundidoEl = setInterval(() => {
+      i++; el.volume = Math.min(1, Math.max(0, inicio + (destino - inicio) * (i / pasos)));
+      if (i >= pasos) { clearInterval(fundidoEl); if (alTerminar) alTerminar(); }
+    }, 50);
+  }
+
+  /* Pantalla de bloqueo y centro de control (iPhone, Android, escritorio). */
+  function prepararMediaSession(el) {
+    if (!("mediaSession" in navigator)) return;
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: CANCION.titulo || "", artist: CANCION.artista || "", album: CANCION.etiqueta || "",
+        artwork: [{ src: "iconos/icono-512.png", sizes: "512x512", type: "image/png" }, { src: "iconos/icono-192.png", sizes: "192x192", type: "image/png" }]
+      });
+      navigator.mediaSession.setActionHandler("play", () => reproducirCancion({ fundido: 1 }));
+      navigator.mediaSession.setActionHandler("pause", () => pausarCancion());
+    } catch (e) {}
+  }
+
+  let orden = 0;  // la última orden (play/pausa) es la que vale
   function reproducirCancion(opciones) {
     const o = opciones || {};
     if (!cancion.el || cancion.disponible === false) return false;
+    orden++;
+    cancion.quiere = true;
     despertar();
     conectarCancion();
     if (tocandoCaja) detenerCaja();
@@ -108,8 +141,8 @@
     pref.cancion = true; guardar();
     const p = cancion.el.play();
     if (cancion.ganancia) rampa(cancion.ganancia.gain, nivelCancion(), o.fundido || 2.5);
-    else cancion.el.volume = pref.silencio ? 0 : pref.volumen;
-    if (p && p.catch) p.catch(() => { cancion.sonando = false; avisar(); });
+    else { if (cancion.el.paused) cancion.el.volume = 0; fundirElemento((pref.silencio ? 0 : pref.volumen) * nivelCancion(), o.fundido || 2.5); }
+    if (p && p.catch) p.catch(() => { cancion.sonando = false; cancion.quiere = false; avisar(); });
     avisar();
     return true;
   }
@@ -118,10 +151,12 @@
     if (!cancion.el) return;
     if (recordar !== false) { pref.cancion = false; guardar(); }
     cancion.protagonista = false;
+    const mia = ++orden;
+    cancion.quiere = false;
     if (cancion.ganancia && ctx) {
       rampa(cancion.ganancia.gain, 0.0001, 1.2);
-      setTimeout(() => { if (cancion.ganancia.gain.value < 0.01) cancion.el.pause(); }, 1300);
-    } else cancion.el.pause();
+      setTimeout(() => { if (mia === orden) cancion.el.pause(); }, 1300);
+    } else fundirElemento(0, 1.2, () => { if (mia === orden) cancion.el.pause(); });
     avisar();
   }
 
@@ -129,6 +164,7 @@
   function atenuar(activar) {
     cancion.atenuada = !!activar;
     if (cancion.ganancia && ctx && cancion.sonando) rampa(cancion.ganancia.gain, nivelCancion(), 0.8);
+    else if (cancion.el && !cancion.ganancia && cancion.sonando) fundirElemento((pref.silencio ? 0 : pref.volumen) * nivelCancion(), 0.8);
     if (tocandoCaja && busMusica) rampa(busMusica.gain, activar ? 0.08 : 0.55, 0.8);
   }
 
@@ -234,9 +270,9 @@
   };
   function efecto(nombre) {
     if (pref.silencio || !EFECTOS[nombre]) return;
-    // Durante el final, la canción manda: los efectos van más bajitos.
-    crearContexto();
+    // Solo suenan si el contexto ya fue activado por un toque.
     if (!ctx || ctx.state !== "running") return;
+    // Durante el final, la canción manda: los efectos van más bajitos.
     busFx.gain.value = cancion.protagonista ? 0.22 : 0.5;
     try { EFECTOS[nombre](ctx.currentTime + 0.01); } catch (e) {}
   }
@@ -247,11 +283,11 @@
   function aplicarVolumen() {
     const v = pref.silencio ? 0 : pref.volumen;
     if (ctx) rampa(maestro.gain, v, 0.25);
-    if (cancion.el && !cancion.ganancia) cancion.el.volume = v;
+    if (cancion.el && !cancion.ganancia) { clearInterval(fundidoEl); cancion.el.volume = v * nivelCancion(); }
   }
   function estado() {
     return {
-      cancionDisponible: cancion.disponible, cancionSonando: cancion.sonando, quiereCancion: pref.cancion,
+      cancionDisponible: cancion.disponible, cancionSonando: cancion.sonando && cancion.quiere, quiereCancion: pref.cancion,
       musica: tocandoCaja, volumen: pref.volumen, silencio: pref.silencio
     };
   }
@@ -264,19 +300,19 @@
     alCambiar(fn) { oyentes.add(fn); fn(estado()); },
     alTiempo(fn) { oyentesTiempo.add(fn); },
     cancion: {
-      disponible: () => cancion.disponible === true,
-      sonando: () => cancion.sonando,
+      disponible: () => !!cancion.el && cancion.disponible !== false,
+      sonando: () => cancion.sonando && cancion.quiere,
       tiempo: () => (cancion.el ? cancion.el.currentTime : 0),
       duracion: () => (cancion.el && isFinite(cancion.el.duration) ? cancion.el.duration : 0),
       ir(seg) { if (cancion.el) try { cancion.el.currentTime = seg; } catch (e) {} },
       reproducir: reproducirCancion,
       pausar: pausarCancion,
-      alternar() { if (cancion.sonando) pausarCancion(); else reproducirCancion(); },
+      alternar() { if (cancion.quiere) pausarCancion(); else reproducirCancion(); },
       soltarProtagonismo() { cancion.protagonista = false; }
     },
     /* Música de fondo: la canción si existe; si no, la caja de música. */
     alternarMusica() {
-      if (cancion.disponible) return this.cancion.alternar();
+      if (cancion.el && cancion.disponible !== false) return this.cancion.alternar();
       pref.musica = !tocandoCaja;
       if (pref.musica) { pref.silencio = false; aplicarVolumen(); iniciarCaja(); } else detenerCaja();
       guardar(); avisar();
@@ -297,8 +333,9 @@
     reanudarSiCorresponde() {
       despertar();
       if (pref.silencio) return;
-      if (cancion.disponible && pref.cancion && !cancion.sonando && sesionConCancion) reproducirCancion({ fundido: 2 });
-      else if (!cancion.disponible && pref.musica && !tocandoCaja) iniciarCaja();
+      const hay = !!cancion.el && cancion.disponible !== false;
+      if (hay && pref.cancion && !cancion.sonando && sesionConCancion) reproducirCancion({ fundido: 2 });
+      else if (!hay && pref.musica && !tocandoCaja) iniciarCaja();
     },
     marcarSesionConCancion() { sesionConCancion = true; },
     atenuar,
@@ -312,6 +349,6 @@
   document.addEventListener("visibilitychange", () => {
     if (!ctx) return;
     if (document.hidden) { if (!cancion.sonando) ctx.suspend().catch(() => {}); }
-    else if (tocandoCaja || cancion.sonando) ctx.resume().catch(() => {});
+    else if (tocandoCaja || cancion.sonando || ctx.state === "interrupted") ctx.resume().catch(() => {});
   });
 })();

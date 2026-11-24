@@ -20,21 +20,25 @@ Página: https://edufake11.github.io/calendario-de-aviento-para-mi-amorcito/
 
 ## Nuestra canción: «Tú y yo» (La Misma Gente)
 
-1. Consigue un archivo de la canción que tengas derecho a usar y llámalo `tu-y-yo.mp3`.
-2. En GitHub entra a la carpeta `audio/` → **Add file → Upload files** → súbelo.
-3. Listo: suena al tocar «Abrir mi regalo», aparece el reproductor con el vinilo y acompaña el gran final.
+El archivo está en `audio/tu-y-yo.mp3` (MP3 de 128 kbps, 4:45). Suena al tocar «Abrir mi regalo», sigue sonando por todo el calendario, aparece en la pantalla de bloqueo del celular y acompaña el gran final.
 
-Ten en cuenta que el repositorio es **público**: cualquiera puede descargar lo que esté aquí. Comprar la canción no siempre da permiso para publicarla. Si no quieres subir el archivo, deja `archivo: ""` y pon un enlace oficial en `enlaceOficial` (`js/config.js`). Mientras no haya archivo, suena una caja de música con «Noche de paz» (dominio público).
+Para cambiarlo, reemplaza el archivo con el mismo nombre. Ten en cuenta que el repositorio es **público**: cualquiera puede descargar lo que esté aquí. Si quitas el archivo o dejas `archivo: ""`, suena una caja de música con «Noche de paz» (dominio público).
+
+Notas para iPhone:
+- La canción pasa por Web Audio para poder hacer fundidos (Safari no deja cambiar el volumen de un audio de otra forma).
+- El service worker no toca el audio: Safari lo pide por partes y un intermediario puede dejarlo mudo.
 
 ### Sincronizar las fotos del final con la canción
 
 En `js/config.js`, dentro de `final`:
 
 - `inicioCancion`: segundo de la canción donde empieza el final (por ejemplo `30` para arrancar en el coro).
-- `marcasFotos`: lista con el segundo en que aparece cada una de las 13 fotos, contado desde `inicioCancion`. Ejemplo: `[2, 5.5, 9, 12.5, …]`.
+- `marcasFotos`: lista con el segundo en que aparece cada una de las 13 fotos, contado desde `inicioCancion`. Ya está sincronizada con la canción (90 BPM): una foto cada 2 compases, y el corazón se forma cuando entra el coro (72 s).
 - `momentos`: cuántos segundos después de la última foto aparecen el corazón, la carta, la despedida y la dedicatoria.
 
 ## Modo prueba
+
+Al publicar cambios, sube `VERSION` en `sw.js` y el `?v=` de `index.html` para que los celulares no se queden con una copia vieja.
 
 Abre la página con `#probar` al final:
 `https://edufake11.github.io/calendario-de-aviento-para-mi-amorcito/#probar`

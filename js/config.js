@@ -65,10 +65,16 @@ window.CALENDARIO = {
        marcasFotos: en qué segundo (contado desde inicioCancion) aparece cada
        foto. Escucha la canción y anota los golpes o el coro que te gusten.
        Si la dejas vacía, sale una foto cada 2,8 segundos.
-       Los demás momentos se cuentan desde la última foto. */
+       Los demás momentos se cuentan desde la última foto.
+
+       Ya sincronizado con «Tú y yo» (90 BPM, un compás = 2,667 s):
+       una foto cada 2 compases desde los 5,3 s; el corazón se forma a los
+       72 s, cuando entra el coro; la carta a los 77 s; «Feliz Navidad» y los
+       fuegos artificiales a los 85 s, en el momento más alto de la canción;
+       y la dedicatoria a los 93 s. */
     inicioCancion: 0,
-    marcasFotos: [],
-    momentos: { corazon: 1.5, carta: 5, despedida: 9, dedicatoria: 12.5 }
+    marcasFotos: [5.33, 10.67, 16, 21.33, 26.67, 32, 37.33, 42.67, 48, 53.33, 58.67, 64, 69.33],
+    momentos: { corazon: 2.67, carta: 8, despedida: 16, dedicatoria: 24 }
   },
 
   /* ------------------------------------------------------------------------

@@ -506,13 +506,19 @@
     return pasos;
   }
 
+  let relojDeRespaldo = false;
   function segundosFinal() {
-    if (conCancion && window.Sonido.cancion.sonando()) {
-      const desde = (CFG.final && CFG.final.inicioCancion) || 0;
-      const t = window.Sonido.cancion.tiempo() - desde;
-      if (t >= -0.5) return t;
+    const transcurrido = (performance.now() - inicioReloj) / 1000;
+    if (conCancion && !relojDeRespaldo) {
+      if (window.Sonido.cancion.sonando()) {
+        const desde = (CFG.final && CFG.final.inicioCancion) || 0;
+        return window.Sonido.cancion.tiempo() - desde;
+      }
+      // Si la canción no arranca en 4 s (sin conexión, bloqueo del navegador…), sigue sin ella.
+      if (transcurrido < 4) return 0;
+      relojDeRespaldo = true; inicioReloj = performance.now(); return 0;
     }
-    return (performance.now() - inicioReloj) / 1000;
+    return transcurrido;
   }
 
   function ejecutarPaso(p) {
@@ -599,6 +605,8 @@
 
     guion = armarGuion(fotos.length);
     pasosHechos = new Set();
+    relojDeRespaldo = false;
+    if (cielo) cielo.pausar();
     inicioReloj = performance.now();
     if (quieto()) { saltarFinal(); return; }
     relojFinal = requestAnimationFrame(bucleFinal);
@@ -625,6 +633,7 @@
     setTimeout(() => {
       fin.hidden = true;
       if (escena) escena.detener();
+      if (cielo) cielo.reanudar();
       pintarTodo();
       const p = document.querySelector('.puerta[data-d="24"]');
       if (p) p.focus({ preventScroll: true });
@@ -645,6 +654,7 @@
     const panel = $("#panelSonido");
     const abrir = typeof forzar === "boolean" ? forzar : panel.hidden;
     panel.hidden = !abrir;
+    if (abrir) { const t = window.Sonido.cancion.tiempo(), d = window.Sonido.cancion.duracion(); $("#cancionTiempo").textContent = tiempoTexto(t); $("#cancionDuracion").textContent = tiempoTexto(d); if (d) $("#cancionBarra").value = Math.round((t / d) * 1000); }
     $("#botonSonido").setAttribute("aria-expanded", String(abrir));
     $("#miniAbrir").setAttribute("aria-expanded", String(abrir));
   }
@@ -670,13 +680,13 @@
     if (!panel.hidden && !e.target.closest("#panelSonido, #botonSonido, #miniReproductor")) alternarPanelSonido(false);
   });
   window.Sonido.alTiempo((t, d) => {
-    if (document.hidden) return;
+    if (document.hidden || $("#panelSonido").hidden) return;
     $("#cancionTiempo").textContent = tiempoTexto(t);
     $("#cancionDuracion").textContent = tiempoTexto(d);
     if (d) $("#cancionBarra").value = Math.round((t / d) * 1000);
   });
   window.Sonido.alCambiar(st => {
-    const hay = st.cancionDisponible === true;
+    const hay = st.cancionDisponible !== false && !!CAN.archivo;
     const suena = hay ? st.cancionSonando : st.musica;
     document.body.classList.toggle("cancion-sonando", st.cancionSonando && !st.silencio);
     $("#miniReproductor").hidden = !hay || $("#app").hidden;

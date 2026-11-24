@@ -7,7 +7,7 @@
   "use strict";
 
   const quieto = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const DPR = () => Math.min(window.devicePixelRatio || 1, 2);
+  const DPR = () => Math.min(window.devicePixelRatio || 1, window.innerWidth < 700 ? 1.5 : 2);
   const azar = (a, b) => a + Math.random() * (b - a);
   const ORO = ["#f0d79a", "#d4af6a", "#fff3d6"];
   const MEZCLA = ["#f0d79a", "#d4af6a", "#fff3d6", "#c43a52", "#f6ecdc"];
@@ -72,9 +72,12 @@
     addEventListener("resize", () => { clearTimeout(espera); espera = setTimeout(() => { sembrar(); if (quieto()) dibujar(0); }, 150); });
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) { activo = false; cancelAnimationFrame(raf); }
-      else if (!quieto()) { activo = true; raf = requestAnimationFrame(bucle); }
+      else if (!quieto() && !pausado && !activo) { activo = true; raf = requestAnimationFrame(bucle); }
     });
+    let pausado = false;
     return {
+      pausar() { pausado = true; activo = false; cancelAnimationFrame(raf); },
+      reanudar() { pausado = false; if (!quieto() && !activo) { activo = true; raf = requestAnimationFrame(bucle); } },
       tormenta(ms) { intensidad = 5; setTimeout(() => (intensidad = 1), ms || 4000); },
       detener() { activo = false; cancelAnimationFrame(raf); }
     };

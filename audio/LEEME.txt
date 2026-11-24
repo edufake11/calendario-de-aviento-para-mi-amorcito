@@ -1,2 +1,2 @@
-Coloca aquí el archivo autorizado de «Tú y yo» (La Misma Gente)
-con el nombre tu-y-yo.mp3. Mira README.md para más detalles.
+Aquí vive nuestra canción: tu-y-yo.mp3 («Tú y yo», La Misma Gente).
+Para cambiarla, reemplaza el archivo con el mismo nombre.

@@ -419,8 +419,8 @@ main.entra { animation: entrar 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 .boton-sonido.sonando svg { animation: latido 2.4s ease-in-out infinite; }
 .panel-sonido {
   position: fixed; z-index: 41; right: max(12px, env(safe-area-inset-right));
-  bottom: calc(var(--barra-alto) + 22px + env(safe-area-inset-bottom));
-  width: min(340px, calc(100% - 24px)); max-height: calc(100dvh - var(--barra-alto) - 60px - env(safe-area-inset-bottom) - env(safe-area-inset-top)); overflow-y: auto; padding: 20px; border-radius: var(--radio);
+  bottom: calc(var(--barra-alto) + 92px + env(safe-area-inset-bottom));
+  width: min(340px, calc(100% - 24px)); max-height: calc(100dvh - var(--barra-alto) - 120px - env(safe-area-inset-bottom) - env(safe-area-inset-top)); overflow-y: auto; padding: 20px; border-radius: var(--radio);
   display: grid; gap: 14px; z-index: 45;
 }
 .volumen { display: grid; gap: 6px; font-size: 13px; color: var(--texto-suave); }
@@ -667,6 +667,8 @@ main.entra { animation: entrar 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
   position: fixed; z-index: 96; left: max(10px, env(safe-area-inset-left)); top: max(10px, env(safe-area-inset-top));
   width: min(290px, calc(100% - 20px)); padding: 12px 14px; border-radius: 14px; font-size: 13px; display: grid; gap: 8px;
 }
+.panel-pruebas.plegado { width: auto; gap: 0; padding: 8px 12px; }
+.panel-pruebas.plegado .pruebas-titulo { gap: 12px; }
 .panel-pruebas.plegado > :not(.pruebas-titulo) { display: none; }
 .pruebas-titulo { margin: 0; display: flex; justify-content: space-between; align-items: center; color: var(--oro-2); }
 .pruebas-titulo .enlace { padding: 0 4px; min-height: 0; font-size: 12px; }
