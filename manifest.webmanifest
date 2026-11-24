@@ -1,0 +1,17 @@
+{
+  "name": "Para Adriana · Calendario de Adviento",
+  "short_name": "Para Adriana",
+  "description": "24 noches, 24 sorpresas. Un calendario de Adviento hecho a mano para Adriana.",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d0709",
+  "theme_color": "#0d0709",
+  "icons": [
+    { "src": "iconos/icono-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "iconos/icono-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "iconos/icono-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
