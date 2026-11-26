@@ -121,7 +121,7 @@
   /* Personalidad de cada puerta: color, patrón e ícono. */
   const VARIANTES = ["vino", "oro", "crema", "noche"];
   const PATRONES = ["liso", "rayas", "puntos", "rombos", "estrellado"];
-  const ICONO_DIA = [null, "estrella", "taza", "corazon", "luna", "esfera", "lazo", "arbol", "regalo", "campana", "vela", "copo", "regalo", "luna", "regalo", "corazon", "regalo", "estrella", "regalo", "copo", "regalo", "baston", "regalo", "vela", "arbol"];
+  const ICONO_DIA = [null, "estrella", "regalo", "corazon", "taza", "esfera", "lazo", "arbol", "regalo", "campana", "vela", "copo", "regalo", "luna", "regalo", "corazon", "regalo", "estrella", "regalo", "copo", "regalo", "baston", "regalo", "vela", "arbol"];
   const EFECTO_DIA = d => ["oro", "estrellas", "corazones", "nieve"][d % 4];
   const MESES_ES = "diciembre";
 

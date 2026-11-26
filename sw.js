@@ -8,10 +8,10 @@
 
    Al publicar cambios, sube VERSION (y el ?v= de index.html) para que
    se borre la copia anterior. */
-const VERSION = "adri-v4";
+const VERSION = "adri-v5";
 const BASICOS = [
-  "./", "index.html", "css/estilos.css?v=4",
-  "js/config.js?v=4", "js/audio.js?v=4", "js/efectos.js?v=4", "js/sorpresas.js?v=4", "js/app.js?v=4",
+  "./", "index.html", "css/estilos.css?v=5",
+  "js/config.js?v=5", "js/audio.js?v=5", "js/efectos.js?v=5", "js/sorpresas.js?v=5", "js/app.js?v=5",
   "manifest.webmanifest", "iconos/icono-192.png", "iconos/icono-512.png"
 ];
 

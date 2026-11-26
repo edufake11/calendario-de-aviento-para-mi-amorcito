@@ -86,9 +86,9 @@ window.CALENDARIO = {
      ------------------------------------------------------------------------ */
   sorpresas: [
     { tipo: "carta", foto: "fotos/d1.jpg", titulo: "Empieza la cuenta regresiva", texto: "Durante 24 días vas a encontrar aquí un poquito de nosotros.\nVuelve cada noche a las 00:00: siempre habrá algo esperándote." },
-    { tipo: "vale", titulo: "Te invito a una cena", texto: "Tú eliges el lugar y el día.\nYo invito, sin mirar la carta de precios." },
+    { tipo: "regalo", titulo: "Un toque de sol para ti", texto: "Un bronceador en barra para que tengas ese brillito de verano.\nAunque tu mejor brillo es cuando sonríes." },
     { tipo: "carta", foto: "fotos/d3.jpg", titulo: "Mira esa carita", texto: "Si alguna vez no sabes cuánto te amo, piensa en cómo nos mira Moca.\nAsí, pero más." },
-    { tipo: "vale", titulo: "Vale por un paseo de luces", texto: "Una noche para caminar juntos y ver las luces de Navidad.\nTú dices a dónde, y la chocolatada va por mi cuenta." },
+    { tipo: "vale", titulo: "Vale por una salida y un chocolate caliente", texto: "Una noche para salir juntos a ver las luces de Navidad.\nTú dices a dónde, y el chocolate caliente va por mi cuenta." },
     { tipo: "rompecabezas", foto: "fotos/d5.jpg", titulo: "Nuestras fotos de la compu", texto: "Cualquier lugar se vuelve bonito si estás tú.\nHasta una computadora de la universidad." },
     { tipo: "vale", titulo: "Un día con todo lo que tú elijas", texto: "Desayuno, plan, comida, peli y postre.\nTodo el día decides tú y yo solo digo que sí." },
     { tipo: "carta", foto: "fotos/d7.jpg", titulo: "Nuestro viaje", texto: "Uno de mis recuerdos favoritos.\nQuiero muchos viajes más contigo." },
