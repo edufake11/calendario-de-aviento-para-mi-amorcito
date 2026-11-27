@@ -896,3 +896,6 @@ body.cancion-sonando .brazo { transform: rotate(24deg); }
   .aniv-foto.activa img, .aniv-foto img { animation: none; transform: none; }
   .joyero-tapa { animation: none; }
 }
+
+/* Foto que no cargó (tras un reintento): se oculta su marco en vez de mostrarla rota. */
+.foto-ausente { display: none !important; }

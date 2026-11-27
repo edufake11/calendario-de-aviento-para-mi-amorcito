@@ -48,11 +48,15 @@
     return ctx;
   }
 
+  let reanudadoEn = 0;   // momento en que un toque recuperó un audio silenciado
   function despertar() {
     // Safari 17+: la canción es música, no un sonido de interfaz.
     try { if (navigator.audioSession && navigator.audioSession.type !== "playback") navigator.audioSession.type = "playback"; } catch (e) {}
     crearContexto();
-    if (ctx && ctx.state !== "running") ctx.resume().catch(() => {});
+    if (ctx && ctx.state !== "running") {
+      if (cancion.quiere) reanudadoEn = performance.now();
+      ctx.resume().catch(() => {});
+    }
   }
 
   function rampa(param, valor, segundos) {
@@ -79,7 +83,12 @@
     a.setAttribute("playsinline", "");
     a.src = CANCION.archivo;
     a.addEventListener("loadedmetadata", () => { cancion.disponible = true; avisar(); });
-    a.addEventListener("error", () => { cancion.disponible = false; avisar(); });
+    a.addEventListener("error", () => {
+      const queria = cancion.quiere;
+      cancion.disponible = false; cancion.quiere = false; cancion.sonando = false;
+      avisar();
+      if (queria && !pref.silencio) iniciarCaja();   // respaldo: «Noche de paz»
+    });
     a.addEventListener("canplay", () => { if (cancion.disponible !== true) { cancion.disponible = true; avisar(); } });
     a.addEventListener("play", () => { cancion.sonando = true; avisar(); });
     a.addEventListener("pause", () => { cancion.sonando = false; cancion.quiere = false; avisar(); });
@@ -307,7 +316,11 @@
       ir(seg) { if (cancion.el) try { cancion.el.currentTime = seg; } catch (e) {} },
       reproducir: reproducirCancion,
       pausar: pausarCancion,
-      alternar() { if (cancion.quiere) pausarCancion(); else reproducirCancion(); },
+      alternar() {
+        // Si este mismo toque acaba de recuperar el sonido, no lo pausamos.
+        if (cancion.quiere && performance.now() - reanudadoEn < 800) return;
+        if (cancion.quiere) pausarCancion(); else reproducirCancion();
+      },
       soltarProtagonismo() { cancion.protagonista = false; }
     },
     /* Música de fondo: la canción si existe; si no, la caja de música. */
@@ -327,7 +340,7 @@
       despertar();
       if (pref.silencio) return;
       if (pref.cancion !== false && reproducirCancion({ fundido: 3.5 })) return;
-      if (pref.musica) iniciarCaja();
+      if (pref.musica || pref.cancion !== false) iniciarCaja();   // sin canción: caja de música
     },
     /* En cualquier toque: si ella la tenía sonando, la retomamos. */
     reanudarSiCorresponde() {
@@ -335,7 +348,7 @@
       if (pref.silencio) return;
       const hay = !!cancion.el && cancion.disponible !== false;
       if (hay && pref.cancion && !cancion.sonando && sesionConCancion) reproducirCancion({ fundido: 2 });
-      else if (!hay && pref.musica && !tocandoCaja) iniciarCaja();
+      else if (!hay && (pref.musica || sesionConCancion) && !tocandoCaja) iniciarCaja();
     },
     marcarSesionConCancion() { sesionConCancion = true; },
     atenuar,

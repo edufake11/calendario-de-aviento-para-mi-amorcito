@@ -764,6 +764,7 @@
     $("#anivCerrar").focus({ preventScroll: true });
 
     const conCancion = cancionParaEscena(ANIV.inicioCancion || 0);
+    if (!conCancion) window.Sonido.reanudarSiCorresponde();
     anivReloj = crearReloj(ANIV.inicioCancion || 0, conCancion);
     anivGuion = guionAniversario(ventana.children.length);
     anivHechos = new Set();
@@ -883,6 +884,24 @@
     });
   });
   prepararReproductor();
+  /* iPhone: al volver de la pantalla bloqueada u otra app, el audio puede
+     quedar en silencio; cualquier toque lo recupera. */
+  ["pointerup", "touchend"].forEach(tipo => document.addEventListener(tipo, () => window.Sonido.despertar(), { passive: true, capture: true }));
+
+  /* Si una foto no carga: un reintento y, si sigue fallando, se oculta su marco. */
+  document.addEventListener("error", e => {
+    const img = e.target;
+    if (!img || img.tagName !== "IMG") return;
+    if (!img.dataset.reintento) {
+      img.dataset.reintento = "1";
+      const src = img.getAttribute("src") || "";
+      setTimeout(() => { img.src = src + (src.indexOf("?") > -1 ? "&" : "?") + "r=1"; }, 1500);
+      return;
+    }
+    const marco = img.closest(".polaroid, .album-polaroid, .final-polaroid, .aniv-foto");
+    (marco || img).classList.add("foto-ausente");
+  }, true);
+
   /* Si ella ya escuchaba la canción, la retomamos con su primer toque. */
   document.addEventListener("pointerdown", function primerToque(e) {
     if (e.target.closest("#miniPlay, #cancionPlay, #sonidoSilencio, #finalMusica, #introComenzar, #introOmitir")) return;
