@@ -18,7 +18,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Pinyon+Script&family=Jost:wght@300;400;500;600&display=swap">
-<link rel="stylesheet" href="css/estilos.css?v=6">
+<link rel="stylesheet" href="css/estilos.css?v=7">
 </head>
 <body class="cargando">
 <canvas id="cielo" class="lienzo-cielo" aria-hidden="true"></canvas>
@@ -101,6 +101,9 @@
     </div>
     <div class="mapa-estelar vidrio">
       <svg id="mapaSvg" viewBox="0 0 360 246" role="group" aria-label="Mapa de estrellas de tus recuerdos"></svg>
+    </div>
+    <div class="revivir" id="revivirAnivBloque" hidden>
+      <button type="button" class="boton boton-fantasma" id="revivirAniversario">Revivir nuestro aniversario</button>
     </div>
     <div class="revivir" id="revivirBloque" hidden>
       <button type="button" class="boton boton-oro" id="revivirHistoria">Volver a vivir nuestra historia</button>
@@ -211,10 +214,56 @@
     </div>
   </div>
   <div class="final-controles">
-    <button type="button" class="chip" id="finalMusica" aria-pressed="false">♪ Música</button>
+    <button type="button" class="chip chip-musica" id="finalMusica" aria-pressed="false">♪ Música</button>
     <button type="button" class="chip chip-redondo" id="finalCerrarX" aria-label="Volver al calendario"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   </div>
   <button type="button" class="chip final-saltar" id="finalSaltar">Saltar al final</button>
+</section>
+
+<!-- ===================== NUESTRO ANIVERSARIO (16 de diciembre) ===================== -->
+<section class="aniversario" id="aniversario" aria-label="Nuestro aniversario" hidden>
+  <div class="aniv-velo" aria-hidden="true"></div>
+  <div class="aniv-escena">
+    <div class="aniv-paso aniv-contador">
+      <p class="eyebrow" id="anivEtiqueta">Nuestro aniversario</p>
+      <p class="aniv-numero" id="anivNumero" aria-live="off">0</p>
+      <p class="aniv-unidad" id="anivUnidad">días juntos</p>
+      <p class="aniv-fechas" id="anivFechas"></p>
+    </div>
+    <div class="aniv-paso aniv-pelicula" aria-hidden="true">
+      <div class="aniv-ventana" id="anivVentana"></div>
+    </div>
+    <div class="aniv-paso aniv-joyero">
+      <button type="button" class="joyero" id="joyero" aria-label="Abrir el joyero">
+        <span class="joyero-luz" aria-hidden="true"></span>
+        <span class="joyero-pulsera" aria-hidden="true">
+          <svg viewBox="0 0 220 150">
+            <defs>
+              <linearGradient id="gPlata" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".35" stop-color="#b9bec6"/><stop offset=".55" stop-color="#f4f5f7"/><stop offset=".8" stop-color="#8f949c"/><stop offset="1" stop-color="#e6e8eb"/></linearGradient>
+              <radialGradient id="gCorazonPlata" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#c9cdd3"/><stop offset="1" stop-color="#7d828a"/></radialGradient>
+            </defs>
+            <ellipse cx="110" cy="66" rx="92" ry="46" fill="none" stroke="url(#gPlata)" stroke-width="7"/>
+            <ellipse cx="110" cy="66" rx="92" ry="46" fill="none" stroke="rgba(40,40,48,.28)" stroke-width="7" stroke-dasharray="1.6 2.4"/>
+            <circle cx="86" cy="110" r="5.5" fill="url(#gPlata)"/><circle cx="134" cy="110" r="5.5" fill="url(#gPlata)"/>
+            <path d="M110 134c-12-8-19-14-19-22 0-6 4.5-10 9.5-10 4 0 7 2.4 9.5 5.6 2.5-3.2 5.5-5.6 9.5-5.6 5 0 9.5 4 9.5 10 0 8-7 14-19 22z" fill="url(#gCorazonPlata)" stroke="#6f747c" stroke-width=".8"/>
+            <path class="pulsera-brillo" d="M60 34q50-22 100 0" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="joyero-tapa" aria-hidden="true"><span class="joyero-broche"></span></span>
+        <span class="joyero-base" aria-hidden="true"></span>
+      </button>
+      <p class="aniv-pista" id="anivRegaloTexto">Tu pulsera</p>
+      <p class="aniv-subpista">Toca el joyero para abrirlo</p>
+    </div>
+    <div class="aniv-paso aniv-carta-envoltura">
+      <article class="aniv-carta" id="anivCarta"></article>
+    </div>
+  </div>
+  <div class="aniv-controles">
+    <button type="button" class="chip chip-musica" id="anivMusica" aria-pressed="false">♪ Música</button>
+    <button type="button" class="chip chip-redondo" id="anivCerrar" aria-label="Volver al calendario"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <button type="button" class="chip aniv-saltar" id="anivSaltar">Saltar al regalo</button>
 </section>
 
 <div class="aviso" id="aviso" role="status" aria-live="polite"></div>
@@ -234,10 +283,10 @@
 
 <noscript><p class="sin-js">Este calendario necesita JavaScript para abrir sus puertas. Actívalo en tu navegador, mi amor.</p></noscript>
 
-<script src="js/config.js?v=6"></script>
-<script src="js/audio.js?v=6"></script>
-<script src="js/efectos.js?v=6"></script>
-<script src="js/sorpresas.js?v=6"></script>
-<script src="js/app.js?v=6"></script>
+<script src="js/config.js?v=7"></script>
+<script src="js/audio.js?v=7"></script>
+<script src="js/efectos.js?v=7"></script>
+<script src="js/sorpresas.js?v=7"></script>
+<script src="js/app.js?v=7"></script>
 </body>
 </html>

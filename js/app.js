@@ -227,6 +227,13 @@
       setTimeout(() => { b.classList.remove("abriendo"); abrirFinal(); }, quieto() ? 0 : 900);
       return;
     }
+    if (CFG.sorpresas[d - 1] && CFG.sorpresas[d - 1].aniversario) {
+      b.classList.add("abriendo");
+      window.Sonido.efecto("abrir");
+      cancionEnElToque(ANIV.inicioCancion || 0);
+      setTimeout(() => { b.classList.remove("abriendo"); abrirAniversario(); }, quieto() ? 0 : 900);
+      return;
+    }
     b.classList.add("abriendo");
     window.Sonido.efecto("abrir");
     setTimeout(() => abrirSorpresa(d, b), quieto() ? 0 : 820);
@@ -239,6 +246,7 @@
   function abrirSorpresa(d, puerta) {
     const s = CFG.sorpresas[d - 1];
     if (!s) return;
+    if (s.aniversario) return abrirAniversario();
     focoAnterior = document.activeElement;
     puertaActiva = puerta || null;
     const modal = $("#modal"), cuerpo = $("#modalCuerpo");
@@ -288,6 +296,7 @@
   document.addEventListener("keydown", e => {
     if (e.key !== "Escape") return;
     if (!$("#modal").hidden) cerrarSorpresa();
+    else if (!$("#aniversario").hidden) cerrarAniversario();
     else if (!$("#final").hidden) cerrarFinal();
     else if (!$("#panelSonido").hidden) alternarPanelSonido(false);
   });
@@ -387,6 +396,7 @@
     });
     $("#albumVacio").hidden = abiertas.length > 0;
     $("#revivirBloque").hidden = !abiertaVisible(TOTAL);
+    $("#revivirAnivBloque").hidden = !(diaAniversario() && abiertaVisible(diaAniversario()));
     $("#albumCuenta").textContent = abiertas.length ? abiertas.length + (abiertas.length === 1 ? " recuerdo guardado" : " recuerdos guardados") : "";
   }
   function escapar(t) { return String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]); }
@@ -483,12 +493,36 @@
      reloj normal si no hay canción. Así las fotos caen en los momentos
      musicales que marques en config.js (final.marcasFotos).
      ====================================================================== */
-  let escena = null, relojFinal = 0, inicioReloj = 0, pasosHechos = new Set(), guion = [], conCancion = false;
+  let escena = null, relojFinal = 0, relojF = null, pasosHechos = new Set(), guion = [], conCancion = false;
 
-  /* En iPhone la reproducción debe empezar dentro del toque mismo. */
-  function cancionFinalEnElToque() {
-    if (window.Sonido.cancion.disponible() && !window.Sonido.estado().silencio)
-      window.Sonido.cancion.reproducir({ desde: (CFG.final && CFG.final.inicioCancion) || 0, protagonista: true, fundido: 3 });
+  /* ---- Compartido por el gran final y el aniversario ------------------ */
+  /* En iPhone la canción debe empezar dentro del toque mismo. */
+  let toqueCancion = 0;
+  function cancionEnElToque(desde) {
+    if (!window.Sonido.cancion.disponible() || window.Sonido.estado().silencio) return false;
+    window.Sonido.cancion.reproducir({ desde, protagonista: true, fundido: 3 });
+    toqueCancion = performance.now();
+    return true;
+  }
+  function cancionFinalEnElToque() { return cancionEnElToque((CFG.final && CFG.final.inicioCancion) || 0); }
+  /* Al abrir la escena: si la canción ya arrancó en el toque, no la reiniciamos. */
+  function cancionParaEscena(desde) {
+    if (!window.Sonido.cancion.disponible() || window.Sonido.estado().silencio) return false;
+    if (performance.now() - toqueCancion < 3000) return true;
+    return window.Sonido.cancion.reproducir({ desde, protagonista: true, fundido: 3 });
+  }
+  /* Reloj de una escena: el de la canción si suena; si no arranca en 4 s, el normal. */
+  function crearReloj(desde, conCancion) {
+    let inicio = performance.now(), respaldo = false;
+    return function () {
+      const transcurrido = (performance.now() - inicio) / 1000;
+      if (conCancion && !respaldo) {
+        if (window.Sonido.cancion.sonando()) return window.Sonido.cancion.tiempo() - desde;
+        if (transcurrido < 4) return 0;
+        respaldo = true; inicio = performance.now(); return 0;
+      }
+      return transcurrido;
+    };
   }
 
   function armarGuion(nFotos) {
@@ -500,21 +534,6 @@
     marcas.forEach((t, i) => pasos.push({ t, id: "foto" + i, foto: i }));
     pasos.push({ t: ultima + m.corazon, id: "corazon" }, { t: ultima + m.carta, id: "carta" }, { t: ultima + m.despedida, id: "despedida" }, { t: ultima + m.dedicatoria, id: "dedicatoria" });
     return pasos;
-  }
-
-  let relojDeRespaldo = false;
-  function segundosFinal() {
-    const transcurrido = (performance.now() - inicioReloj) / 1000;
-    if (conCancion && !relojDeRespaldo) {
-      if (window.Sonido.cancion.sonando()) {
-        const desde = (CFG.final && CFG.final.inicioCancion) || 0;
-        return window.Sonido.cancion.tiempo() - desde;
-      }
-      // Si la canción no arranca en 4 s (sin conexión, bloqueo del navegador…), sigue sin ella.
-      if (transcurrido < 4) return 0;
-      relojDeRespaldo = true; inicioReloj = performance.now(); return 0;
-    }
-    return transcurrido;
   }
 
   function ejecutarPaso(p) {
@@ -535,7 +554,7 @@
   }
 
   function bucleFinal() {
-    const t = segundosFinal();
+    const t = relojF ? relojF() : 0;
     for (const p of guion) if (!pasosHechos.has(p.id) && t >= p.t) { pasosHechos.add(p.id); ejecutarPaso(p); }
     if (pasosHechos.size < guion.length) relojFinal = requestAnimationFrame(bucleFinal);
   }
@@ -594,16 +613,13 @@
     $("#finalCerrarX").focus({ preventScroll: true });
 
     // «Tú y yo» toma el protagonismo (si el archivo está disponible).
-    conCancion = window.Sonido.cancion.disponible() && !window.Sonido.estado().silencio
-      ? window.Sonido.cancion.reproducir({ desde: F.inicioCancion || 0, protagonista: true, fundido: 3 })
-      : false;
+    conCancion = cancionParaEscena(F.inicioCancion || 0);
     if (!conCancion) window.Sonido.reanudarSiCorresponde();
 
     guion = armarGuion(fotos.length);
     pasosHechos = new Set();
-    relojDeRespaldo = false;
     if (cielo) cielo.pausar();
-    inicioReloj = performance.now();
+    relojF = crearReloj(F.inicioCancion || 0, conCancion);
     if (quieto()) { saltarFinal(); return; }
     relojFinal = requestAnimationFrame(bucleFinal);
   }
@@ -641,6 +657,168 @@
   $("#finalRepetir").addEventListener("click", abrirFinal);
   $("#revivirHistoria").addEventListener("click", abrirFinal);
   $("#finalMusica").addEventListener("click", () => window.Sonido.alternarMusica());
+
+  /* ======================================================================
+     NUESTRO ANIVERSARIO (16 de diciembre)
+     Una experiencia propia: velo de terciopelo sobre el calendario, lluvia
+     de corazones, contador hasta 730 días, película de nuestras fotos al
+     compás de «Tú y yo», joyero con la pulsera y la carta del día.
+     Usa el mismo reproductor y el mismo reloj que el gran final.
+     ====================================================================== */
+  const ANIV = CFG.aniversario || {};
+  const diaAniversario = () => CFG.sorpresas.findIndex(x => x && x.aniversario) + 1;
+  let anivReloj = null, anivRaf = 0, anivContadorRaf = 0, anivHechos = new Set(), anivGuion = [], anivTiempos = [];
+
+  function guionAniversario(n) {
+    const f0 = ANIV.inicioFotos != null ? ANIV.inicioFotos : 8, cada = ANIV.fotoCada || 2.667;
+    const pasos = [{ t: 0.15, id: "velo" }, { t: 0.9, id: "contador" }, { t: 4.4, id: "lluvia" }, { t: 5.6, id: "fechas" }, { t: f0 - 0.5, id: "pelicula" }];
+    for (let i = 0; i < n; i++) pasos.push({ t: f0 + i * cada, id: "foto" + i, foto: i });
+    pasos.push({ t: f0 + n * cada + 0.3, id: "joyero" });
+    return pasos;
+  }
+
+  function contarDias() {
+    const total = ANIV.dias || 730, el = $("#anivNumero"), dur = 4200, t0 = performance.now();
+    cancelAnimationFrame(anivContadorRaf);
+    el.classList.remove("llego");
+    (function paso(t) {
+      const k = Math.min(1, (t - t0) / dur), suave = 1 - Math.pow(1 - k, 3);
+      el.textContent = String(Math.round(total * suave));
+      if (k < 1) anivContadorRaf = requestAnimationFrame(paso);
+      else { el.classList.add("llego"); window.Sonido.efecto("exito"); }
+    })(t0);
+  }
+
+  function pasoAniversario(p) {
+    const sec = $("#aniversario");
+    if (p.foto != null) {
+      const figs = $("#anivVentana").children;
+      for (let i = 0; i < figs.length; i++) figs[i].classList.toggle("activa", i === p.foto);
+      return;
+    }
+    switch (p.id) {
+      case "velo": sec.classList.add("paso-velo"); window.Efectos.Fx.lluvia("corazones", 44); break;
+      case "contador": sec.classList.add("paso-contador"); contarDias(); break;
+      case "lluvia": window.Efectos.Fx.lluvia("corazones", 26); break;
+      case "fechas": sec.classList.add("paso-fechas"); window.Sonido.efecto("destello"); break;
+      case "pelicula": sec.classList.add("paso-pelicula"); break;
+      case "joyero": sec.classList.add("paso-joyero"); $("#joyero").focus({ preventScroll: true }); break;
+    }
+  }
+
+  function bucleAniversario() {
+    const t = anivReloj ? anivReloj() : 0;
+    for (const p of anivGuion) if (!anivHechos.has(p.id) && t >= p.t) { anivHechos.add(p.id); pasoAniversario(p); }
+    if (anivHechos.size < anivGuion.length) anivRaf = requestAnimationFrame(bucleAniversario);
+  }
+
+  function abrirAniversario() {
+    const d = diaAniversario();
+    if (!d) return;
+    const s = CFG.sorpresas[d - 1];
+    const sec = $("#aniversario");
+    if (sec.hidden) focoAnterior = document.activeElement;
+    cancelAnimationFrame(anivRaf); cancelAnimationFrame(anivContadorRaf);
+    anivTiempos.forEach(clearTimeout); anivTiempos = [];
+    alternarPanelSonido(false);
+    Estado.abrir(d);
+
+    $("#anivEtiqueta").textContent = s.etiqueta || "Nuestro aniversario";
+    $("#anivNumero").textContent = "0";
+    $("#anivNumero").setAttribute("aria-label", (ANIV.dias || 730) + " " + (ANIV.textoDias || "días juntos"));
+    $("#anivUnidad").textContent = ANIV.textoDias || "días juntos";
+    $("#anivFechas").textContent = (ANIV.desde || "") + " — " + (ANIV.hasta || "");
+    $("#anivRegaloTexto").textContent = ANIV.regalo || "Tu regalo";
+
+    // Película de nuestras fotos (se precargan para que no haya saltos en iPhone).
+    const ventana = $("#anivVentana");
+    ventana.innerHTML = "";
+    CFG.sorpresas.forEach((x, i) => {
+      if (!x || !x.foto) return;
+      const img = h("img", { src: x.foto, alt: "", decoding: "async" });
+      if (img.decode) img.decode().catch(() => {});
+      ventana.append(h("figure", { class: "aniv-foto" + (ventana.children.length % 2 ? " hacia-izq" : "") },
+        img, h("figcaption", {}, h("span", { text: (i + 1) + " de diciembre" }), h("strong", { text: x.titulo }))));
+    });
+
+    // Carta de aniversario (la misma del día 16).
+    const carta = $("#anivCarta");
+    carta.innerHTML = "";
+    carta.append(
+      h("p", { class: "eyebrow", text: (ANIV.desde || "") + " — " + (ANIV.hasta || "") }),
+      h("h3", { class: "aniv-titulo", text: s.titulo }),
+      h("div", { class: "lineas" }, s.texto.split("\n").map((l, i) => h("p", { style: "--i:" + i, text: l }))),
+      s.tipo === "regalo" ? h("div", { class: "nota-regalo" }, h("span", { class: "nota-icono", "aria-hidden": "true", text: "🎁" }), h("span", { text: "Hoy hay un regalo de verdad para ti. Pídeselo a " + CFG.de + "." })) : null,
+      h("p", { class: "firma", text: [CFG.firma, CFG.de].filter(Boolean).join(", ") }),
+      h("div", { class: "aniv-acciones" },
+        h("button", { type: "button", class: "boton boton-oro", text: "Revivir nuestro aniversario", onclick: () => { cancionEnElToque(ANIV.inicioCancion || 0); abrirAniversario(); } }),
+        h("button", { type: "button", class: "boton boton-fantasma", text: "Volver al calendario", onclick: cerrarAniversario })));
+
+    sec.hidden = false;
+    sec.className = "aniversario";
+    $(".aniv-escena").scrollTop = 0;
+    document.documentElement.classList.add("sin-scroll");
+    $("#app").setAttribute("aria-hidden", "true");
+    requestAnimationFrame(() => sec.classList.add("visible"));
+    if (cielo) cielo.pausar();
+    $("#anivCerrar").focus({ preventScroll: true });
+
+    const conCancion = cancionParaEscena(ANIV.inicioCancion || 0);
+    anivReloj = crearReloj(ANIV.inicioCancion || 0, conCancion);
+    anivGuion = guionAniversario(ventana.children.length);
+    anivHechos = new Set();
+    if (quieto()) { saltarAniversario(); return; }
+    anivRaf = requestAnimationFrame(bucleAniversario);
+  }
+
+  function saltarAniversario() {
+    cancelAnimationFrame(anivRaf); cancelAnimationFrame(anivContadorRaf);
+    anivGuion.forEach(p => anivHechos.add(p.id));
+    const n = $("#anivNumero");
+    n.textContent = String(ANIV.dias || 730); n.classList.add("llego");
+    $("#aniversario").classList.add("paso-velo", "paso-contador", "paso-fechas", "paso-pelicula", "paso-joyero");
+    $("#joyero").focus({ preventScroll: true });
+  }
+
+  function abrirJoyero() {
+    const sec = $("#aniversario");
+    if (!sec.classList.contains("paso-joyero") || sec.classList.contains("paso-abierto")) return;
+    sec.classList.add("paso-abierto");
+    window.Sonido.efecto("abrir");
+    const d = diaAniversario(), datos = Estado.datos(d);
+    datos.abierto = true; Estado.guardar();
+    anivTiempos.push(setTimeout(() => { fx("oro", $("#joyero")); fx("corazones", $("#joyero")); window.Sonido.efecto("destello"); }, quieto() ? 0 : 650));
+    anivTiempos.push(setTimeout(() => {
+      sec.classList.add("paso-carta");
+      $(".aniv-escena").scrollTop = 0;
+      window.Sonido.efecto("papel");
+      const b = sec.querySelector(".aniv-acciones .boton");
+      if (b) b.focus({ preventScroll: true });
+    }, quieto() ? 200 : 3400));
+  }
+
+  function cerrarAniversario() {
+    const sec = $("#aniversario");
+    if (sec.hidden) return;
+    cancelAnimationFrame(anivRaf); cancelAnimationFrame(anivContadorRaf);
+    anivTiempos.forEach(clearTimeout); anivTiempos = [];
+    window.Sonido.cancion.soltarProtagonismo();
+    sec.classList.remove("visible");
+    document.documentElement.classList.remove("sin-scroll");
+    $("#app").removeAttribute("aria-hidden");
+    setTimeout(() => {
+      sec.hidden = true;
+      if (cielo) cielo.reanudar();
+      pintarTodo();
+      const p = document.querySelector('.puerta[data-d="' + diaAniversario() + '"]');
+      if (p) p.focus({ preventScroll: true });
+    }, quieto() ? 0 : 600);
+  }
+  $("#joyero").addEventListener("click", abrirJoyero);
+  $("#anivSaltar").addEventListener("click", saltarAniversario);
+  $("#anivCerrar").addEventListener("click", cerrarAniversario);
+  $("#anivMusica").addEventListener("click", () => window.Sonido.alternarMusica());
+  $("#revivirAniversario").addEventListener("click", () => { cancionEnElToque(ANIV.inicioCancion || 0); abrirAniversario(); });
 
   /* ======================================================================
      NUESTRA CANCIÓN Y SONIDO (controles)
@@ -699,8 +877,10 @@
     $("#sonidoVolumen").value = Math.round(st.volumen * 100);
     $("#botonSonido").classList.toggle("sonando", suena && !st.silencio);
     $("#botonSonido").classList.toggle("silencio", st.silencio);
-    $("#finalMusica").setAttribute("aria-pressed", String(suena));
-    $("#finalMusica").textContent = suena ? "♪ Pausar música" : hay ? "♪ Nuestra canción" : "♪ Música";
+    document.querySelectorAll(".chip-musica").forEach(b => {
+      b.setAttribute("aria-pressed", String(suena));
+      b.textContent = suena ? "♪ Pausar música" : hay ? "♪ Nuestra canción" : "♪ Música";
+    });
   });
   prepararReproductor();
   /* Si ella ya escuchaba la canción, la retomamos con su primer toque. */

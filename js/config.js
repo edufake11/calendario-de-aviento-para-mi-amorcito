@@ -78,6 +78,24 @@ window.CALENDARIO = {
   },
 
   /* ------------------------------------------------------------------------
+     NUESTRO ANIVERSARIO · 16 de diciembre (puerta con  aniversario: true)
+     Se abre como una experiencia propia: contador, película de fotos con
+     «Tú y yo», joyero con la pulsera y la carta del día 16.
+     inicioCancion: segundo de la canción donde empieza (64 s = justo antes
+     del coro; las fotos entran con el coro, una por compás).
+     ------------------------------------------------------------------------ */
+  aniversario: {
+    desde: "16.12.2024",
+    hasta: "16.12.2026",
+    dias: 730,
+    textoDias: "días juntos",
+    regalo: "Tu pulsera",
+    inicioCancion: 64,
+    inicioFotos: 8,        // segundos desde el inicio
+    fotoCada: 2.667        // un compás de «Tú y yo»
+  },
+
+  /* ------------------------------------------------------------------------
      LAS 24 SORPRESAS
      tipo: "carta" | "vale" | "regalo" | "rompecabezas" | "memoria"
            | "constelacion" | "final"
