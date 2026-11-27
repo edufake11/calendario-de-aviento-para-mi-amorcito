@@ -121,8 +121,8 @@
   /* Personalidad de cada puerta: color, patrón e ícono. */
   const VARIANTES = ["vino", "oro", "crema", "noche"];
   const PATRONES = ["liso", "rayas", "puntos", "rombos", "estrellado"];
-  const ICONO_DIA = [null, "estrella", "regalo", "corazon", "taza", "esfera", "lazo", "arbol", "regalo", "campana", "vela", "copo", "regalo", "luna", "regalo", "corazon", "regalo", "estrella", "regalo", "copo", "regalo", "baston", "regalo", "vela", "arbol"];
-  const EFECTO_DIA = d => ["oro", "estrellas", "corazones", "nieve"][d % 4];
+  const ICONO_DIA = [null, "estrella", "regalo", "corazon", "taza", "esfera", "lazo", "arbol", "regalo", "campana", "vela", "copo", "regalo", "luna", "regalo", "corazon", "corazon", "estrella", "regalo", "copo", "regalo", "baston", "regalo", "vela", "arbol"];
+  const EFECTO_DIA = d => ((CFG.sorpresas[d - 1] || {}).aniversario ? "corazones" : ["oro", "estrellas", "corazones", "nieve"][d % 4]);
   const MESES_ES = "diciembre";
 
   /* ======================================================================
@@ -189,7 +189,7 @@
     for (let d = 1; d <= TOTAL; d++) {
       const s = CFG.sorpresas[d - 1] || {};
       const est = estadoPuerta(d);
-      const variante = d === TOTAL ? "gala" : VARIANTES[(d * 7 + 1) % 4];
+      const variante = d === TOTAL || s.aniversario ? "gala" : VARIANTES[(d * 7 + 1) % 4];
       const patron = PATRONES[(d * 3) % PATRONES.length];
       const miniatura = s.foto ? s.foto.replace("fotos/", "fotos/mini/") : null;
       const li = h("li", { class: "puerta-item", style: "--r:" + (((d * 37) % 7) - 3) * 0.4 + "deg;--i:" + d });
@@ -242,7 +242,7 @@
     focoAnterior = document.activeElement;
     puertaActiva = puerta || null;
     const modal = $("#modal"), cuerpo = $("#modalCuerpo");
-    $("#modalEyebrow").textContent = window.Sorpresas.etiqueta(s.tipo) + " · " + d + " de " + MESES_ES;
+    $("#modalEyebrow").textContent = (s.etiqueta || window.Sorpresas.etiqueta(s.tipo)) + " · " + d + " de " + MESES_ES;
     $("#modalDia").textContent = pad2(d);
     $("#modalFirma").textContent = [CFG.firma, CFG.de].filter(Boolean).join(", ");
     cuerpo.innerHTML = "";
