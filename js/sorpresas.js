@@ -33,7 +33,7 @@
   function polaroid(src, pie, extra) {
     if (!src) return null;
     return h("figure", { class: "polaroid " + (extra || "") },
-      h("img", { src, alt: pie || "Nuestra foto", loading: "lazy", decoding: "async" }),
+      h("img", { src: src, alt: pie || "Nuestra foto", decoding: "async" }),
       pie ? h("figcaption", { text: pie }) : null);
   }
 
@@ -128,13 +128,14 @@
       do { for (let i = total - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [orden[i], orden[j]] = [orden[j], orden[i]]; } }
       while (orden.every((v, i) => v === i));
     }
-    // Ruta absoluta: dentro de una variable CSS, una ruta relativa se leería desde la carpeta css/.
-    const fotoAbs = new URL(s.foto, document.baseURI).href;
+    // Una <img> oculta carga la foto y las piezas la usan como fondo cuando ya cargó.
+    let fotoAbs = "";
+    const fuente = h("img", { src: s.foto, alt: "", hidden: true, onload: () => { fotoAbs = fuente.currentSrc || fuente.src; pintar(); } });
     const tablero = h("div", { class: "tablero-puzzle", style: "aspect-ratio:" + (s.aspecto || "3 / 4"), role: "group", "aria-label": "Rompecabezas de 9 piezas" });
     const info = h("p", { class: "juego-info", "aria-live": "polite", text: "Toca dos piezas para cambiarlas de lugar." });
     const revelado = contenido(s, ctx, { foto: false });
     const raiz = h("div", { class: "juego" + (ctx.datos.resuelto ? " resuelto" : "") },
-      h("p", { class: "juego-titulo", text: "Arma nuestra foto para leer tu sorpresa" }), tablero, info,
+      h("p", { class: "juego-titulo", text: "Arma nuestra foto para leer tu sorpresa" }), fuente, tablero, info,
       saltar("Mostrar la foto armada", () => terminar(true)), revelado);
 
     function pintar() {
@@ -142,7 +143,7 @@
       orden.forEach((pieza, pos) => {
         const x = (pieza % N) * 50, y = Math.floor(pieza / N) * 50;
         tablero.append(h("button", {
-          type: "button", class: "pieza" + (elegida === pos ? " elegida" : ""), style: 'background-image:url("' + fotoAbs + '");background-position:' + x + "% " + y + "%",
+          type: "button", class: "pieza" + (elegida === pos ? " elegida" : ""), style: (fotoAbs ? 'background-image:url("' + fotoAbs + '");' : "") + 'background-position:' + x + "% " + y + "%",
           "aria-label": "Pieza " + (pos + 1), onclick: () => tocar(pos)
         }));
       });
@@ -182,7 +183,7 @@
     const botones = cartas.map((c, i) => {
       const b = h("button", { type: "button", class: "carta-memoria", "aria-label": "Carta " + (i + 1) },
         h("span", { class: "cara dorso", "aria-hidden": "true" }),
-        h("span", { class: "cara frente" }, h("img", { src: c.src, alt: "", loading: "lazy", decoding: "async" })));
+        h("span", { class: "cara frente" }, h("img", { src: c.src, alt: "", decoding: "async" })));
       b.addEventListener("click", () => voltear(i));
       tablero.append(b);
       return b;

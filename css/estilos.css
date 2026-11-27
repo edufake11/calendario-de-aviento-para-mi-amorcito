@@ -899,3 +899,48 @@ body.cancion-sonando .brazo { transform: rotate(24deg); }
 
 /* Foto que no cargó (tras un reintento): se oculta su marco en vez de mostrarla rota. */
 .foto-ausente { display: none !important; }
+
+/* ======================================================================
+   VIDEOCLIP DEL ANIVERSARIO · escenas de 1, 2 y 3 fotos
+   Las fotos nunca se recortan (object-fit: contain / proporción natural).
+   Solo se animan transform y opacity; el fondo desenfocado es una
+   miniatura de 40 px ampliada (sin filtros costosos en iPhone).
+   ====================================================================== */
+.aniv-ventana { width: min(92vw, 470px); container-type: size; }
+.clip { position: absolute; inset: 0; opacity: 0; transition: opacity 1.1s ease; overflow: hidden; }
+.clip.activa { opacity: 1; }
+.clip-fondo { position: absolute; inset: -6%; width: 112%; height: 112%; max-width: none; object-fit: cover; opacity: 0.6; }
+.escena-completa::after { content: ""; position: absolute; inset: 0; background: radial-gradient(80% 70% at 50% 50%, transparent 40%, rgba(8, 2, 4, 0.7)); pointer-events: none; }
+.clip-marco { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; padding: 3%; }
+.clip-marco img { max-width: 100%; max-height: 100%; width: auto; height: auto; border-radius: 4px; box-shadow: 0 20px 40px -14px #000; transform: scale(1); will-change: transform; }
+.escena-completa.activa .clip-marco img { animation: clipZoom var(--dur) cubic-bezier(0.25, 0.1, 0.25, 1) both; }
+@keyframes clipZoom { from { transform: scale(1) translate3d(0, 1%, 0); } to { transform: scale(1.06) translate3d(0, -1%, 0); } }
+
+.clip-polaroid {
+  position: absolute; margin: 0; padding: 7px 7px 24px; border-radius: 2px;
+  background: linear-gradient(180deg, #fbf5ea, #efe3cd); box-shadow: 0 24px 40px -16px #000;
+  opacity: 0; --r: 0deg; transform: translate3d(0, 40px, 0) scale(0.9) rotate(0);
+}
+.clip-polaroid img { display: block; width: 100%; height: auto; max-height: 70cqh; object-fit: contain; background: #1c0f12; }
+.clip.activa .clip-polaroid { animation: clipEntra 1s cubic-bezier(0.2, 0.8, 0.2, 1) both, clipDeriva var(--dur) ease-out both; animation-delay: calc(var(--i) * 0.4s), calc(var(--i) * 0.4s); }
+@keyframes clipEntra { from { opacity: 0; transform: translate3d(0, 40px, 0) scale(0.9) rotate(0); } to { opacity: 1; transform: translate3d(0, 0, 0) scale(1) rotate(var(--r)); } }
+@keyframes clipDeriva { from { translate: 0 0; } to { translate: 0 -10px; } }
+/* Una Polaroid grande */
+.escena-polaroid { display: grid; place-items: center; }
+.escena-polaroid .p0 { --r: -2.5deg; position: relative; width: 74%; }
+.escena-polaroid .p0 img { max-height: 76cqh; }
+/* Dúo */
+.escena-duo .p0 { --r: -4deg; left: 3%; top: 5%; width: 56%; }
+.escena-duo .p1 { --r: 3.5deg; right: 3%; bottom: 5%; width: 56%; }
+.escena-duo img { max-height: 52cqh; }
+/* Trío */
+.escena-trio .p0 { --r: -5deg; left: 2%; top: 3%; width: 48%; }
+.escena-trio .p1 { --r: 4deg; right: 2%; top: 30%; width: 48%; }
+.escena-trio .p2 { --r: -1.5deg; left: 20%; bottom: 3%; width: 48%; }
+.escena-trio img { max-height: 40cqh; }
+
+@media (prefers-reduced-motion: reduce) {
+  .clip.activa .clip-polaroid { animation: none; opacity: 1; transform: rotate(var(--r)); }
+  .escena-completa.activa .clip-marco img { animation: none; }
+}
+

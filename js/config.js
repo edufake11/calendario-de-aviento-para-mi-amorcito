@@ -14,6 +14,7 @@
 window.CALENDARIO = {
   produccion: true,
 
+
   para: "Adriana",
   de: "Jhoncena",
   anio: 2026,
@@ -91,8 +92,12 @@ window.CALENDARIO = {
     textoDias: "días juntos",
     regalo: "Tu pulsera",
     inicioCancion: 64,
-    inicioFotos: 8,        // segundos desde el inicio
-    fotoCada: 2.667        // un compás de «Tú y yo»
+    inicioFotos: 8,        // segundos desde el inicio (= 72 s de la canción, entra el coro)
+    fotoCada: 2.667,       // un compás de «Tú y yo»
+    /* Videoclip: estas fotos son solo del día 16. Se barajan cada vez y salen
+       todas, sin repetirse, en escenas de 1, 2 o 3 fotos al compás. */
+    carpeta: "fotos/dia-16/aniversario/",
+    fotos: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg", "07.jpg", "08.jpg", "09.jpg", "10.jpg", "11.jpg", "12.jpg", "13.jpg", "14.jpg", "15.jpg", "16.jpg", "17.jpg", "18.jpg", "19.jpg", "20.jpg", "21.jpg", "22.jpg", "23.jpg", "24.jpg", "25.jpg", "26.jpg", "27.jpg", "28.jpg", "29.jpg"]
   },
 
   /* ------------------------------------------------------------------------
@@ -103,30 +108,30 @@ window.CALENDARIO = {
            "galeria" | "pregunta" | "audio" | "video" | "playlist"
      ------------------------------------------------------------------------ */
   sorpresas: [
-    { tipo: "carta", foto: "fotos/d1.jpg", titulo: "Empieza la cuenta regresiva", texto: "Durante 24 días vas a encontrar aquí un poquito de nosotros.\nVuelve cada noche a las 00:00: siempre habrá algo esperándote." },
+    { tipo: "carta", foto: "fotos/dia-01/foto.jpg", titulo: "Empieza la cuenta regresiva", texto: "Durante 24 días vas a encontrar aquí un poquito de nosotros.\nVuelve cada noche a las 00:00: siempre habrá algo esperándote." },
     { tipo: "regalo", titulo: "Un toque de sol para ti", texto: "Un bronceador en barra para que tengas ese brillito de verano.\nAunque tu mejor brillo es cuando sonríes." },
-    { tipo: "carta", foto: "fotos/d3.jpg", titulo: "Mira esa carita", texto: "Si alguna vez no sabes cuánto te amo, piensa en cómo nos mira Moca.\nAsí, pero más." },
+    { tipo: "carta", foto: "fotos/dia-03/foto.jpg", titulo: "Mira esa carita", texto: "Si alguna vez no sabes cuánto te amo, piensa en cómo nos mira Moca.\nAsí, pero más." },
     { tipo: "vale", titulo: "Vale por una salida y un chocolate caliente", texto: "Una noche para salir juntos a ver las luces de Navidad.\nTú dices a dónde, y el chocolate caliente va por mi cuenta." },
-    { tipo: "rompecabezas", foto: "fotos/d5.jpg", titulo: "Nuestras fotos de la compu", texto: "Cualquier lugar se vuelve bonito si estás tú.\nHasta una computadora de la universidad." },
+    { tipo: "rompecabezas", foto: "fotos/dia-05/foto.jpg", titulo: "Nuestras fotos de la compu", texto: "Cualquier lugar se vuelve bonito si estás tú.\nHasta una computadora de la universidad." },
     { tipo: "regalo", titulo: "Un día con todo lo que tú elijas", texto: "Desayuno, plan, comida, peli y postre.\nTodo el día decides tú y yo solo digo que sí.\nY para cerrar el día, un juego solo para los dos: ya veremos quién se pone más rojo." },
-    { tipo: "carta", foto: "fotos/d7.jpg", titulo: "Nuestro viaje", texto: "Uno de mis recuerdos favoritos.\nQuiero muchos viajes más contigo." },
+    { tipo: "carta", foto: "fotos/dia-07/foto.jpg", titulo: "Nuestro viaje", texto: "Uno de mis recuerdos favoritos.\nQuiero muchos viajes más contigo." },
     { tipo: "regalo", titulo: "El que querías para tu cumple", texto: "Sé que lo querías para tu cumpleaños y no pude dártelo.\nTarde, pero llegó: ahora sí es tuyo." },
-    { tipo: "carta", foto: "fotos/d9.jpg", titulo: "Prueba de que estamos igual de locos", texto: "Por eso nos entendemos tan bien.\nNo cambies nunca." },
+    { tipo: "carta", foto: "fotos/dia-09/foto.jpg", titulo: "Prueba de que estamos igual de locos", texto: "Por eso nos entendemos tan bien.\nNo cambies nunca." },
     { tipo: "regalo", titulo: "Un poquito de glow", texto: "Para que tu maquillaje te dure todo el día.\nAunque sin nada ya eres la más bonita." },
-    { tipo: "carta", foto: "fotos/d11.jpg", titulo: "Esa laguna en Huaraz", texto: "Hacía frío, había viento y estaba nublado.\nY yo estaba feliz porque estaba contigo." },
+    { tipo: "carta", foto: "fotos/dia-11/foto.jpg", titulo: "Esa laguna en Huaraz", texto: "Hacía frío, había viento y estaba nublado.\nY yo estaba feliz porque estaba contigo." },
     { tipo: "regalo", titulo: "Un Minion para ti", texto: "Bob y su osito Tim vienen a hacerte compañía.\nPara que lo abraces cuando yo no esté." },
-    { tipo: "carta", foto: "fotos/d13.jpg", titulo: "Tu cara de «ya vámonos»", texto: "Hasta enojada eres la más bonita.\nGracias por aguantarme las fotos." },
+    { tipo: "carta", foto: "fotos/dia-13/foto.jpg", titulo: "Tu cara de «ya vámonos»", texto: "Hasta enojada eres la más bonita.\nGracias por aguantarme las fotos." },
     { tipo: "regalo", titulo: "Una flor que no se marchita", texto: "Para que tengas flores en tu cuarto todo el año.\nComo lo que siento por ti." },
-    { tipo: "carta", foto: "fotos/d15.jpg", titulo: "Mis dos dormilonas", texto: "Tú y Moca, juntitas en el sillón.\nUna de mis fotos favoritas: me da mucha ternura verlas así." },
+    { tipo: "carta", foto: "fotos/dia-15/foto.jpg", titulo: "Mis dos dormilonas", texto: "Tú y Moca, juntitas en el sillón.\nUna de mis fotos favoritas: me da mucha ternura verlas así." },
     { tipo: "regalo", aniversario: true, etiqueta: "Nuestro aniversario", titulo: "Feliz aniversario, mi amor", texto: "Hoy cumplimos 2 años juntos.\n730 días eligiéndote, y te volvería a elegir todos.\nEsta pulsera tiene un corazón para que lleves el mío siempre contigo.\nTe amo." },
-    { tipo: "memoria", fotos: ["fotos/mini/d1.jpg", "fotos/mini/d3.jpg", "fotos/mini/d5.jpg", "fotos/mini/d7.jpg", "fotos/mini/d11.jpg", "fotos/mini/d15.jpg"], foto: "fotos/d17.jpg", titulo: "Mitad del camino y un poquito más", texto: "Ya van diecisiete puertas.\nQuedan siete sorpresas y muchas ganas de verte." },
+    { tipo: "memoria", fotos: ["fotos/dia-01/mini.jpg", "fotos/dia-03/mini.jpg", "fotos/dia-05/mini.jpg", "fotos/dia-07/mini.jpg", "fotos/dia-11/mini.jpg", "fotos/dia-15/mini.jpg"], foto: "fotos/dia-17/foto.jpg", titulo: "Mitad del camino y un poquito más", texto: "Ya van diecisiete puertas.\nQuedan siete sorpresas y muchas ganas de verte." },
     { tipo: "regalo", titulo: "Un tulipán para llevar contigo", texto: "Para tus llaves, tu mochila o donde quieras.\nAsí me llevas a todos lados." },
-    { tipo: "constelacion", foto: "fotos/d19.jpg", titulo: "Lo que más espero", texto: "Pasar estas fiestas contigo.\nLo demás es decoración." },
+    { tipo: "constelacion", foto: "fotos/dia-19/foto.jpg", titulo: "Lo que más espero", texto: "Pasar estas fiestas contigo.\nLo demás es decoración." },
     { tipo: "regalo", titulo: "Tulipanes para ti", texto: "Porque mereces flores aunque no haya un motivo.\nY hoy el motivo es que te amo." },
-    { tipo: "carta", foto: "fotos/d21.jpg", titulo: "Moca también lo sabe", texto: "Que en brazos de quien te ama se duerme mejor.\nHoy es el día más largo del año, y aun así contigo se me pasa volando." },
+    { tipo: "carta", foto: "fotos/dia-21/foto.jpg", titulo: "Moca también lo sabe", texto: "Que en brazos de quien te ama se duerme mejor.\nHoy es el día más largo del año, y aun así contigo se me pasa volando." },
     { tipo: "regalo", titulo: "Para que te tapes riendo", texto: "Una manta con una foto tuya, de las graciosas 😜\nCada vez que te tapes te vas a reír y te vas a acordar de mí." },
-    { tipo: "carta", foto: "fotos/d23.jpg", titulo: "Casi", texto: "Mañana es Nochebuena.\nGracias por este año, por tu paciencia, por tu risa y por todas nuestras fotos borrosas." },
-    { tipo: "final", regalo: true, foto: "fotos/d24.jpg", titulo: "Feliz Navidad, mi amor", texto: "Esa noche en el Puente de los Suspiros pensé que no quería estar en ningún otro lugar.\nTu último regalo brilla: un anillito para que me lleves siempre contigo.\nTe amo muchoo, mi amorcito." }
+    { tipo: "carta", foto: "fotos/dia-23/foto.jpg", titulo: "Casi", texto: "Mañana es Nochebuena.\nGracias por este año, por tu paciencia, por tu risa y por todas nuestras fotos borrosas." },
+    { tipo: "final", regalo: true, foto: "fotos/dia-24/foto.jpg", titulo: "Feliz Navidad, mi amor", texto: "Esa noche en el Puente de los Suspiros pensé que no quería estar en ningún otro lugar.\nTu último regalo brilla: un anillito para que me lleves siempre contigo.\nTe amo muchoo, mi amorcito." }
   ]
 };
 
@@ -136,7 +141,7 @@ window.CALENDARIO = {
 
    Galería de Polaroids:
    { tipo: "galeria", titulo: "…", texto: "…",
-     fotos: [{ src: "fotos/d7.jpg", pie: "…" }, { src: "fotos/d11.jpg", pie: "…" }] }
+     fotos: [{ src: "fotos/dia-07/foto.jpg", pie: "…" }, { src: "fotos/dia-11/foto.jpg", pie: "…" }] }
 
    Pregunta sobre nosotros:
    { tipo: "pregunta", titulo: "…", pregunta: "¿…?",
@@ -147,7 +152,7 @@ window.CALENDARIO = {
    { tipo: "audio", titulo: "…", src: "audio/mensaje.m4a", texto: "…" }
 
    Video de recuerdos (sube el archivo a la carpeta video/, mejor .mp4 corto):
-   { tipo: "video", titulo: "…", src: "video/recuerdo.mp4", poster: "fotos/d7.jpg", texto: "…" }
+   { tipo: "video", titulo: "…", src: "video/recuerdo.mp4", poster: "fotos/dia-07/foto.jpg", texto: "…" }
 
    Playlist (enlaces a Spotify, YouTube, etc.):
    { tipo: "playlist", titulo: "…", texto: "…",

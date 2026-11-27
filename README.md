@@ -15,7 +15,7 @@ Página: https://edufake11.github.io/calendario-de-aviento-para-mi-amorcito/
 | `js/sorpresas.js` | Componentes de cada tipo de sorpresa (carta, cupón, regalo, rompecabezas, memoria, constelación, galería, pregunta, audio, video, playlist). |
 | `js/efectos.js` | Cielo con estrellas y nieve, partículas, corazón y fuegos artificiales. |
 | `js/audio.js` | Nuestra canción, caja de música de respaldo y efectos de sonido. |
-| `fotos/` y `fotos/mini/` | Fotos grandes y miniaturas para el álbum, el árbol y el final. |
+| `fotos/dia-NN/` | Foto y miniatura de cada día; `fotos/dia-16/aniversario/` tiene las 29 del videoclip y sus fondos. |
 | `sw.js`, `manifest.webmanifest`, `iconos/` | Para instalarla como app en el celular. |
 
 ## Nuestra canción: «Tú y yo» (La Misma Gente)
@@ -59,3 +59,4 @@ Importante: GitHub Pages es un alojamiento estático. Cualquiera que sepa inspec
 - «Nuestro pequeño universo» guarda todo lo abierto y sigue disponible después de Navidad.
 - Respeta «Reducir movimiento» del sistema y funciona en Safari y Chrome.
 - Hay 3 secretos escondidos.
+

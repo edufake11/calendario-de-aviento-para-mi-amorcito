@@ -51,6 +51,8 @@
   })();
 
   const disponible = d => Tiempo.ahora() >= Tiempo.apertura(d);
+  /* Cada día: «fotos/dia-NN/foto.jpg» y su miniatura «fotos/dia-NN/mini.jpg». */
+  const mini = ruta => String(ruta).replace(/foto\.jpg$/, "mini.jpg");
   const esNavidad = () => Tiempo.ahora() >= Tiempo.navidad;
 
   /* ======================================================================
@@ -191,13 +193,13 @@
       const est = estadoPuerta(d);
       const variante = d === TOTAL || s.aniversario ? "gala" : VARIANTES[(d * 7 + 1) % 4];
       const patron = PATRONES[(d * 3) % PATRONES.length];
-      const miniatura = s.foto ? s.foto.replace("fotos/", "fotos/mini/") : null;
+      const miniatura = s.foto ? mini(s.foto) : null;
       const li = h("li", { class: "puerta-item", style: "--r:" + (((d * 37) % 7) - 3) * 0.4 + "deg;--i:" + d });
       const etiquetas = { abierta: "ya abierta, toca para volver a verla", disponible: "lista para abrir", bloqueada: "se abre el " + d + " de diciembre" };
       const b = h("button", { type: "button", class: "puerta v-" + variante + " p-" + patron + " " + est, "data-d": d, "aria-label": "Puerta " + d + ", " + etiquetas[est] });
       b.innerHTML =
         '<span class="puerta-hueco" aria-hidden="true"><span class="hueco-brillo"></span>' +
-          (est === "abierta" && miniatura ? '<img class="hueco-foto" src="' + miniatura + '" alt="" loading="lazy" decoding="async">' : '<span class="hueco-icono">' + svgIcono(s.tipo === "vale" ? "taza" : s.tipo === "regalo" || s.regalo ? "regalo" : "corazon") + "</span>") +
+          (est === "abierta" && miniatura ? '<img class="hueco-foto" src="' + miniatura + '" alt="" decoding="async">' : '<span class="hueco-icono">' + svgIcono(s.tipo === "vale" ? "taza" : s.tipo === "regalo" || s.regalo ? "regalo" : "corazon") + "</span>") +
         "</span>" +
         '<span class="puerta-hoja" aria-hidden="true"><span class="hoja-frente">' +
           '<span class="hoja-num">' + pad2(d) + "</span>" +
@@ -385,7 +387,7 @@
       const s = CFG.sorpresas[d - 1];
       if (s.foto) {
         fotos.append(h("button", { type: "button", class: "album-polaroid", style: "--r:" + (((d * 53) % 9) - 4) + "deg", onclick: () => (d === TOTAL ? abrirFinal() : abrirSorpresa(d)), "aria-label": "Ver el recuerdo del " + d + " de diciembre" },
-          h("img", { src: s.foto.replace("fotos/", "fotos/mini/"), alt: s.titulo, loading: "lazy", decoding: "async" }),
+          h("img", { src: mini(s.foto), alt: s.titulo, decoding: "async" }),
           h("span", { text: d + " dic · " + s.titulo })));
       } else {
         const dato = Estado.datos(d);
@@ -559,7 +561,12 @@
     if (pasosHechos.size < guion.length) relojFinal = requestAnimationFrame(bucleFinal);
   }
 
+  /* Fotos del gran final (miniaturas de cada día + la del puente). */
+  const rutasFinal = () => CFG.sorpresas.flatMap(x => (x && x.foto ? [mini(x.foto)] : [])).concat(CFG.sorpresas[TOTAL - 1].foto ? [CFG.sorpresas[TOTAL - 1].foto] : []);
   function abrirFinal() {
+    conFotos(rutasFinal(), iniciarFinal, () => { cancionFinalEnElToque(); abrirFinal(); });
+  }
+  function iniciarFinal() {
     const s = CFG.sorpresas[TOTAL - 1];
     const F = CFG.final || {};
     const fin = $("#final");
@@ -582,7 +589,7 @@
     // Presentación de nuestras fotos.
     const contenedor = $("#finalFotos");
     contenedor.innerHTML = "";
-    const fotos = CFG.sorpresas.map((x, i) => (x.foto ? { src: x.foto.replace("fotos/", "fotos/mini/"), d: i + 1 } : null)).filter(Boolean);
+    const fotos = CFG.sorpresas.map((x, i) => (x.foto ? { src: mini(x.foto), d: i + 1 } : null)).filter(Boolean);
     fotos.forEach((f, i) => {
       const ang = (i / fotos.length) * Math.PI * 2 + 0.4;
       contenedor.append(h("figure", { class: "final-polaroid", style: "--x:" + Math.round(Math.cos(ang) * 34) + "vw;--y:" + Math.round(Math.sin(ang) * 30) + "vh;--r:" + (((i * 47) % 17) - 8) + "deg;--i:" + i },
@@ -669,11 +676,67 @@
   const diaAniversario = () => CFG.sorpresas.findIndex(x => x && x.aniversario) + 1;
   let anivReloj = null, anivRaf = 0, anivContadorRaf = 0, anivHechos = new Set(), anivGuion = [], anivTiempos = [];
 
-  function guionAniversario(n) {
-    const f0 = ANIV.inicioFotos != null ? ANIV.inicioFotos : 8, cada = ANIV.fotoCada || 2.667;
+  /* ---- Videoclip: escenas al compás ------------------------------------
+     [tipo, fotos, compases]: pantalla completa y Polaroid duran 2 compases
+     (5,3 s); los collages de 2 y 3 fotos, 3 compases (8 s). */
+  const BARRA = ANIV.fotoCada || 2.667;
+  const PATRON = [["completa", 1, 2], ["duo", 2, 3], ["polaroid", 1, 2], ["trio", 3, 3]];
+  let anivEscenas = [];
+  const conCarpeta = !!(ANIV.fotos && ANIV.fotos.length);
+  const rutaFoto = n => (conCarpeta ? (ANIV.carpeta || "") : "") + n;
+  const rutaFondo = n => (conCarpeta ? (ANIV.carpeta || "") + "fondo/" + n : mini(n));
+  const rutasAniversario = () => conCarpeta ? ANIV.fotos.flatMap(n => [rutaFoto(n), rutaFondo(n)]) : [];
+
+  function barajar(lista) {
+    const a = lista.slice();
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  }
+  /* Orden nuevo en cada reproducción; cada foto aparece una sola vez. */
+  function armarEscenas(f0) {
+    const fotos = barajar(conCarpeta ? ANIV.fotos : CFG.sorpresas.filter(x => x && x.foto).map(x => x.foto));
+    const escenas = [];
+    let t = f0, k = 0;
+    while (fotos.length) {
+      let [tipo, n, compases] = PATRON[k++ % PATRON.length];
+      if (n > fotos.length) { n = fotos.length; tipo = n === 1 ? "completa" : "duo"; compases = n === 1 ? 2 : 3; }
+      escenas.push({ tipo, fotos: fotos.splice(0, n), t, dur: compases * BARRA, el: null, pre: null });
+      t += compases * BARRA;
+    }
+    return escenas;
+  }
+  /* Precarga progresiva: solo las 2 escenas siguientes. */
+  function precargar(esc) {
+    if (!esc || esc.pre) return;
+    esc.pre = esc.fotos.map(n => { const i = new Image(); i.decoding = "async"; i.src = rutaFoto(n); if (i.decode) i.decode().catch(() => {}); return i; });
+  }
+  function crearEscena(esc) {
+    if (!esc || esc.el) return;
+    const el = h("div", { class: "clip escena-" + esc.tipo, style: "--dur:" + (esc.dur + 1.2).toFixed(2) + "s" });
+    if (esc.tipo === "completa") el.append(h("img", { class: "clip-fondo", src: rutaFondo(esc.fotos[0]), alt: "", decoding: "async" }));
+    esc.fotos.forEach((n, i) => {
+      const img = h("img", { src: rutaFoto(n), alt: "", decoding: "async" });
+      el.append(esc.tipo === "completa" ? h("div", { class: "clip-marco" }, img) : h("figure", { class: "clip-polaroid p" + i, style: "--i:" + i }, img));
+    });
+    esc.el = el; esc.pre = null;
+    $("#anivVentana").append(el);
+  }
+  function mostrarEscena(k) {
+    const esc = anivEscenas[k];
+    if (!esc) return;
+    crearEscena(esc); crearEscena(anivEscenas[k + 1]); precargar(anivEscenas[k + 2]);
+    requestAnimationFrame(() => anivEscenas.forEach((e, i) => { if (e.el) e.el.classList.toggle("activa", i === k); }));
+    // Memoria (iPhone): se retiran las escenas que ya pasaron.
+    const vieja = anivEscenas[k - 2];
+    if (vieja && vieja.el) { vieja.el.remove(); vieja.el = null; }
+  }
+
+  function guionAniversario(escenas) {
+    const f0 = ANIV.inicioFotos != null ? ANIV.inicioFotos : 8;
     const pasos = [{ t: 0.15, id: "velo" }, { t: 0.9, id: "contador" }, { t: 4.4, id: "lluvia" }, { t: 5.6, id: "fechas" }, { t: f0 - 0.5, id: "pelicula" }];
-    for (let i = 0; i < n; i++) pasos.push({ t: f0 + i * cada, id: "foto" + i, foto: i });
-    pasos.push({ t: f0 + n * cada + 0.3, id: "joyero" });
+    escenas.forEach((e, k) => pasos.push({ t: e.t, id: "escena" + k, escena: k }));
+    const ultima = escenas[escenas.length - 1];
+    pasos.push({ t: (ultima ? ultima.t + ultima.dur : f0) + 0.3, id: "joyero" });
     return pasos;
   }
 
@@ -691,11 +754,7 @@
 
   function pasoAniversario(p) {
     const sec = $("#aniversario");
-    if (p.foto != null) {
-      const figs = $("#anivVentana").children;
-      for (let i = 0; i < figs.length; i++) figs[i].classList.toggle("activa", i === p.foto);
-      return;
-    }
+    if (p.escena != null) { mostrarEscena(p.escena); return; }
     switch (p.id) {
       case "velo": sec.classList.add("paso-velo"); window.Efectos.Fx.lluvia("corazones", 44); break;
       case "contador": sec.classList.add("paso-contador"); contarDias(); break;
@@ -712,7 +771,11 @@
     if (anivHechos.size < anivGuion.length) anivRaf = requestAnimationFrame(bucleAniversario);
   }
 
+  /* Abre el aniversario. */
   function abrirAniversario() {
+    conFotos(rutasAniversario(), iniciarAniversario, () => { cancionEnElToque(ANIV.inicioCancion || 0); abrirAniversario(); });
+  }
+  function iniciarAniversario() {
     const d = diaAniversario();
     if (!d) return;
     const s = CFG.sorpresas[d - 1];
@@ -730,16 +793,10 @@
     $("#anivFechas").textContent = (ANIV.desde || "") + " — " + (ANIV.hasta || "");
     $("#anivRegaloTexto").textContent = ANIV.regalo || "Tu regalo";
 
-    // Película de nuestras fotos (se precargan para que no haya saltos en iPhone).
-    const ventana = $("#anivVentana");
-    ventana.innerHTML = "";
-    CFG.sorpresas.forEach((x, i) => {
-      if (!x || !x.foto) return;
-      const img = h("img", { src: x.foto, alt: "", decoding: "async" });
-      if (img.decode) img.decode().catch(() => {});
-      ventana.append(h("figure", { class: "aniv-foto" + (ventana.children.length % 2 ? " hacia-izq" : "") },
-        img, h("figcaption", {}, h("span", { text: (i + 1) + " de diciembre" }), h("strong", { text: x.titulo }))));
-    });
+    // Videoclip: orden nuevo cada vez; se precargan solo las primeras escenas.
+    $("#anivVentana").innerHTML = "";
+    anivEscenas = armarEscenas(ANIV.inicioFotos != null ? ANIV.inicioFotos : 8);
+    precargar(anivEscenas[0]); precargar(anivEscenas[1]);
 
     // Carta de aniversario (la misma del día 16).
     const carta = $("#anivCarta");
@@ -766,7 +823,7 @@
     const conCancion = cancionParaEscena(ANIV.inicioCancion || 0);
     if (!conCancion) window.Sonido.reanudarSiCorresponde();
     anivReloj = crearReloj(ANIV.inicioCancion || 0, conCancion);
-    anivGuion = guionAniversario(ventana.children.length);
+    anivGuion = guionAniversario(anivEscenas);
     anivHechos = new Set();
     if (quieto()) { saltarAniversario(); return; }
     anivRaf = requestAnimationFrame(bucleAniversario);
@@ -809,6 +866,7 @@
     $("#app").removeAttribute("aria-hidden");
     setTimeout(() => {
       sec.hidden = true;
+      $("#anivVentana").innerHTML = ""; anivEscenas = [];
       if (cielo) cielo.reanudar();
       pintarTodo();
       const p = document.querySelector('.puerta[data-d="' + diaAniversario() + '"]');
@@ -820,6 +878,9 @@
   $("#anivCerrar").addEventListener("click", cerrarAniversario);
   $("#anivMusica").addEventListener("click", () => window.Sonido.alternarMusica());
   $("#revivirAniversario").addEventListener("click", () => { cancionEnElToque(ANIV.inicioCancion || 0); abrirAniversario(); });
+
+  /* Las experiencias del 16 y del 24 empiezan directamente (fotos públicas). */
+  function conFotos(rutas, alListo) { alListo(); }
 
   /* ======================================================================
      NUESTRA CANCIÓN Y SONIDO (controles)
@@ -898,7 +959,7 @@
       setTimeout(() => { img.src = src + (src.indexOf("?") > -1 ? "&" : "?") + "r=1"; }, 1500);
       return;
     }
-    const marco = img.closest(".polaroid, .album-polaroid, .final-polaroid, .aniv-foto");
+    const marco = img.closest(".polaroid, .album-polaroid, .final-polaroid, .clip-marco, .clip-polaroid");
     (marco || img).classList.add("foto-ausente");
   }, true);
 

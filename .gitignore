@@ -1,0 +1,6 @@
+
+# Copias de trabajo que no se publican
+privado/
+*.zip
+.env
+.env.*
